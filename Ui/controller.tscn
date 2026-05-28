@@ -17,62 +17,65 @@ layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 40.0
-offset_top = -144.0
-offset_right = 80.0
-offset_bottom = -104.0
+offset_top = -40.0
+offset_right = 40.0
 grow_vertical = 0
-scale = Vector2(0.5, 0.5)
 
 [node name="UpL" type="TouchScreenButton" parent="Layout/Control" unique_id=1756448157]
-position = Vector2(-32, -160)
+position = Vector2(24, -424)
+texture_normal = ExtResource("1_w32gj")
+passby_press = true
+action = "up_left"
+
+[node name="UpL2" type="TouchScreenButton" parent="Layout/Control" unique_id=415546010]
+position = Vector2(24, -424)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "up_left"
 
 [node name="Up" type="TouchScreenButton" parent="Layout/Control" unique_id=120392682]
-position = Vector2(96, -160)
+position = Vector2(152, -424)
 texture_normal = ExtResource("1_w32gj")
 action = "up"
 
 [node name="UpR" type="TouchScreenButton" parent="Layout/Control" unique_id=124055708]
-position = Vector2(224, -160)
+position = Vector2(280, -424)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "up_right"
 
 [node name="Left" type="TouchScreenButton" parent="Layout/Control" unique_id=1787214397]
-position = Vector2(-32, -32)
+position = Vector2(24, -296)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "left"
 
 [node name="center" type="TouchScreenButton" parent="Layout/Control" unique_id=811601046]
-position = Vector2(96, -32)
+position = Vector2(152, -296)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "centerbutton"
 
 [node name="Right" type="TouchScreenButton" parent="Layout/Control" unique_id=461984208]
-position = Vector2(224, -32)
+position = Vector2(280, -296)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "right"
 
 [node name="DownL" type="TouchScreenButton" parent="Layout/Control" unique_id=684640408]
-position = Vector2(-32, 96)
+position = Vector2(24, -168)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "down_left"
 
 [node name="Down" type="TouchScreenButton" parent="Layout/Control" unique_id=1301129591]
-position = Vector2(96, 96)
+position = Vector2(152, -168)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
-action = "down "
+action = "down"
 
 [node name="DownR" type="TouchScreenButton" parent="Layout/Control" unique_id=832220853]
-position = Vector2(224, 96)
+position = Vector2(280, -168)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "down_right"

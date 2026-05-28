@@ -1,0 +1,127 @@
+[gd_scene format=3 uid="uid://vubgg2pk35oe"]
+
+[ext_resource type="Texture2D" uid="uid://k67rih8h5xrr" path="res://icon.svg" id="1_rwxo1"]
+[ext_resource type="PackedScene" uid="uid://cggqi20lmnhkn" path="res://test/WorldT.tscn" id="2_rwxo1"]
+
+[node name="Root" type="Control" unique_id=458066944]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+metadata/_edit_vertical_guides_ = [-1112.0]
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=336838125]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+metadata/_edit_use_anchors_ = true
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=950096001]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Uileft" type="Panel" parent="MarginContainer/HBoxContainer" unique_id=1981901082]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="MarginContainer/HBoxContainer/Uileft" unique_id=928159142]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -40.0
+offset_right = 40.0
+grow_vertical = 0
+scale = Vector2(0.8, 0.8)
+
+[node name="UpL" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=1259009883]
+position = Vector2(12, -428)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "up_left"
+
+[node name="UpL2" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=1757900078]
+position = Vector2(12, -428)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "up_left"
+
+[node name="Up" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=1035129550]
+position = Vector2(140, -428)
+texture_normal = ExtResource("1_rwxo1")
+action = "up"
+
+[node name="UpR" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=1537401547]
+position = Vector2(268, -428)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "up_right"
+
+[node name="Left" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=1070439346]
+position = Vector2(12, -300)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "left"
+
+[node name="center" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=589090620]
+position = Vector2(140, -300)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "centerbutton"
+
+[node name="Right" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=809784983]
+position = Vector2(268, -300)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "right"
+
+[node name="DownL" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=808198244]
+position = Vector2(12, -172)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "down_left"
+
+[node name="Down" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=239606682]
+position = Vector2(140, -172)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "down"
+
+[node name="DownR" type="TouchScreenButton" parent="MarginContainer/HBoxContainer/Uileft/Control" unique_id=313643155]
+position = Vector2(268, -172)
+texture_normal = ExtResource("1_rwxo1")
+passby_press = true
+action = "down_right"
+
+[node name="TVcenter" type="AspectRatioContainer" parent="MarginContainer/HBoxContainer" unique_id=869616336]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+ratio = 1.7778
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="MarginContainer/HBoxContainer/TVcenter" unique_id=760457894]
+clip_contents = true
+layout_mode = 2
+
+[node name="Tv" type="SubViewport" parent="MarginContainer/HBoxContainer/TVcenter/SubViewportContainer" unique_id=389780417]
+disable_3d = true
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="World" parent="MarginContainer/HBoxContainer/TVcenter/SubViewportContainer/Tv" unique_id=62650097 instance=ExtResource("2_rwxo1")]
+position = Vector2(408, 224)
+
+[node name="Uireght" type="Panel" parent="MarginContainer/HBoxContainer" unique_id=2089099682]
+layout_mode = 2
+size_flags_horizontal = 3
