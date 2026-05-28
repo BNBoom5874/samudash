@@ -66,7 +66,7 @@ shape = SubResource("RectangleShape2D_luodq")
 position = Vector2(313, 89)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
-position = Vector2(224, 208)
-zoom = Vector2(1.2, 1.2)
+position = Vector2(240, 224)
+zoom = Vector2(1.4, 1.4)
 
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
