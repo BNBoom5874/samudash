@@ -73,4 +73,4 @@ zoom = Vector2(1.4, 1.4)
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
 
 [node name="Enemy Test" parent="." unique_id=1961180463 instance=ExtResource("3_8n65e")]
-position = Vector2(90, 54)
+position = Vector2(112, 359)

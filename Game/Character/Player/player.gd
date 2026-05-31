@@ -5,7 +5,7 @@ class_name  Player
 #region Variables 
 
 var enemy : Node2D = null
-var lock_range : float = 200.0
+var lock_range : float = 300.0
 
 
 const DashSpeed : float = 1200.0
@@ -19,7 +19,7 @@ var gravity = Gravity
 
 #time
 const Cooldown : float = 0.4
-const Time_Dash : float = 0.3
+const Time_Dash : float = 0.2
 
 
 var timer_dash : float = 0.0
@@ -28,7 +28,7 @@ var timercool : float = 0.0
 
 var is_dashing : bool = false
 var is_cooldown : bool = false
-var wall_hit : bool = false
+
 
 #input
 var keyUp :bool = false
@@ -51,8 +51,7 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if input_dir != Vector2.ZERO:
-		print("*",is_dash_toward_enemy())
+
 	
 	set_Time(delta)
 	
@@ -103,7 +102,7 @@ func set_Time(delta) -> void:
 			is_cooldown = true
 			timercool = Cooldown
 			is_dashing = false
-			end_dash()
+
 	
 	if timercool > 0:
 		timercool -= delta
@@ -112,7 +111,7 @@ func set_Time(delta) -> void:
 		timercool = 0.0
 		if is_cooldown:
 			is_cooldown = false
-			wall_hit = false
+			
 
 
 	#region Dash
@@ -163,19 +162,13 @@ func start_dash() -> void:
 
 	
 func handle_wall_collision() -> void:
-	if  is_dashing and is_on_wall() or is_on_ceiling():
-		wall_hit = true
-		if wall_hit and not is_cooldown:
-			velocity = get_wall_normal() * 400
-			end_dash()
-
-
-func end_dash() -> void:
-
-	
-		timercool = Cooldown
-		is_cooldown = true
+	if  is_dashing and (is_on_wall() or is_on_ceiling()):
+		velocity = get_wall_normal() * 400
 		is_dashing = false
+		is_cooldown = true
+		timercool = Cooldown
+
+
 	#endregion
 #endregion
 
@@ -185,6 +178,8 @@ func is_enemy_in_range() -> bool:
 	return global_position.distance_to(enemy.global_position) <= lock_range
 
 func is_dash_toward_enemy() -> bool:
+	if enemy == null: return false
+	if not is_enemy_in_range(): return false
 	var to_enemy = (enemy.global_position - global_position).normalized()
 	var dot = input_dir.dot(to_enemy)
-	return dot > 0.8
+	return dot > 0.81  # เปลี่ยนตรงนี้

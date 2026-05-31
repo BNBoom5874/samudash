@@ -28,12 +28,6 @@ texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "up_left"
 
-[node name="UpL2" type="TouchScreenButton" parent="Layout/Control" unique_id=415546010]
-position = Vector2(24, -424)
-texture_normal = ExtResource("1_w32gj")
-passby_press = true
-action = "up_left"
-
 [node name="Up" type="TouchScreenButton" parent="Layout/Control" unique_id=120392682]
 position = Vector2(152, -424)
 texture_normal = ExtResource("1_w32gj")

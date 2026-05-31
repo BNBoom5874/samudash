@@ -2,9 +2,17 @@
 
 [ext_resource type="Script" uid="uid://2xlkb2jwtiyl" path="res://test/enemy_test.gd" id="1_b2465"]
 
-[node name="Enemy Test" type="Node2D" unique_id=1961180463 groups=["enemy"]]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b2465"]
+
+[node name="Enemy Test" type="CharacterBody2D" unique_id=1041993179 groups=["enemy"]]
+collision_layer = 4
 script = ExtResource("1_b2465")
 
 [node name="ColorRect" type="ColorRect" parent="." unique_id=1164285702]
-offset_right = 30.0
-offset_bottom = 40.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(1, 0.017311394, 0.01565069, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2031123913]
+position = Vector2(10, 10)
+shape = SubResource("RectangleShape2D_b2465")
