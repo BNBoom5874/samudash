@@ -1,15 +1,25 @@
 extends CharacterBody2D
+class_name  Player
+
+
+#region Variables 
+
+var enemy : Node2D = null
+var lock_range : float = 200.0
 
 
 const DashSpeed : float = 1200.0
 const Gravity : float = 600.0
+
+var input_dir : Vector2 = Vector2.ZERO
+
 
 var dashspeed  = DashSpeed
 var gravity = Gravity
 
 #time
 const Cooldown : float = 0.4
-const Time_Dash : float = 0.1
+const Time_Dash : float = 0.3
 
 
 var timer_dash : float = 0.0
@@ -31,23 +41,30 @@ var keyDownL :bool = false
 var keyDownR :bool = false
 var keyDown :bool = false
 
+
+#endregion
+
 #region Loop function 
 
 func _ready() -> void:
-	pass
+	enemy = get_tree().get_first_node_in_group("enemy")
 
 
 func _physics_process(delta: float) -> void:
+	if input_dir != Vector2.ZERO:
+		print("*",is_dash_toward_enemy())
 	
 	set_Time(delta)
 	
 	get_input()
 	
-	handle_Dash()
+	handle_Dash_Input()
 	
 	
 	apply_gravity(delta)
 	
+	if is_cooldown:
+		velocity.x = move_toward(velocity.x, 0, 20)
 	
 	move_and_slide()
 	
@@ -75,49 +92,7 @@ func apply_gravity(delta) -> void:
 		velocity.y += gravity * delta
 
 
-func handle_Dash() -> void:
-	
-	if is_dashing or is_cooldown: return
-		#Up
-	if keyUp :
-		velocity = Vector2(0,-1) * DashSpeed
-	
-		
-	if keyUpL :
-		velocity = Vector2(-1, -1).normalized() * DashSpeed
-	
-		
-	if keyUpR :
-		velocity = Vector2(1, -1).normalized() * DashSpeed
-	
-	#horizon
-	if keyLeft :
-		velocity = Vector2(-1, 0) * DashSpeed
-		
-	if keyRight :
-		velocity = Vector2(1, 0) * DashSpeed
-		
-	#Down
-	if keyDown :
-		velocity = Vector2(0, 1) * DashSpeed
-		
-	if keyDownL :
-		velocity = Vector2(-1, 1).normalized() * DashSpeed
-		
-	if keyDownR :
-		velocity = Vector2(1, 1).normalized() * DashSpeed
-	
-	if keyUp or keyRight or keyLeft or keyDown or keyDownL or keyDownR or keyUpL or keyUpR:
-		is_dashing = true
-		timer_dash = Time_Dash
-	
-	
-	if Cooldown:
-		velocity.x = move_toward(velocity.x, 0, 20)
-
-
 func set_Time(delta) -> void:
- 
 	
 	
 	if timer_dash > 0:
@@ -128,28 +103,88 @@ func set_Time(delta) -> void:
 			is_cooldown = true
 			timercool = Cooldown
 			is_dashing = false
+			end_dash()
 	
 	if timercool > 0:
 		timercool -= delta
+	
 	else:
 		timercool = 0.0
 		if is_cooldown:
 			is_cooldown = false
 			wall_hit = false
-		
-		
 
 
+	#region Dash
+	
+	
+func handle_Dash_Input() -> void:
+	if is_dashing or is_cooldown: return
+	
+	if keyUp:
+		input_dir = Vector2(0, -1)
+	elif keyUpL:
+		input_dir = Vector2(-1, -1).normalized()
+	elif keyUpR:
+		input_dir = Vector2(1, -1).normalized()
+	elif keyLeft:
+		input_dir = Vector2(-1, 0)
+	elif keyRight:
+		input_dir = Vector2(1, 0)
+	elif keyDown:
+		input_dir = Vector2(0, 1)
+	elif keyDownL:
+		input_dir = Vector2(-1, 1).normalized()
+	elif keyDownR:
+		input_dir = Vector2(1, 1).normalized()
+	else:
+		input_dir = Vector2.ZERO
+	
+	if input_dir != Vector2.ZERO:
+		start_dash()
+	
+
+	
+
+
+func start_dash() -> void:
+	if is_dash_toward_enemy():
+		var to_enemy = (enemy.global_position - global_position).normalized()
+		velocity = to_enemy * dashspeed
+	else:
+		velocity = input_dir * DashSpeed
+	
+	
+
+	is_dashing = true
+	timer_dash = Time_Dash
+	
+
+
+	
 func handle_wall_collision() -> void:
 	if  is_dashing and is_on_wall() or is_on_ceiling():
-		velocity.x = 0
 		wall_hit = true
-		end_dash()
+		if wall_hit and not is_cooldown:
+			velocity = get_wall_normal() * 400
+			end_dash()
 
 
 func end_dash() -> void:
-	if wall_hit and not is_cooldown:
-		velocity = get_wall_normal() * 400
+
+	
 		timercool = Cooldown
 		is_cooldown = true
 		is_dashing = false
+	#endregion
+#endregion
+
+
+func is_enemy_in_range() -> bool:
+	if enemy == null: return false
+	return global_position.distance_to(enemy.global_position) <= lock_range
+
+func is_dash_toward_enemy() -> bool:
+	var to_enemy = (enemy.global_position - global_position).normalized()
+	var dot = input_dir.dot(to_enemy)
+	return dot > 0.8

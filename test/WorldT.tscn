@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://b1mg6hru5saio" path="res://Ui/controller.tscn" id="2_8n65e"]
 [ext_resource type="PackedScene" uid="uid://bkh7ipi0ebjal" path="res://Game/Character/player.tscn" id="2_vt5b8"]
+[ext_resource type="PackedScene" uid="uid://bcyincdyu0h83" path="res://test/enemy_test.tscn" id="3_8n65e"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_luodq"]
 size = Vector2(738.125, 49.374996)
@@ -35,7 +36,7 @@ anchor_right = 0.5
 anchor_bottom = 0.5
 offset_left = -337.50006
 offset_top = -266.25003
-offset_right = 162.49994
+offset_right = 142.49994
 offset_bottom = 233.74997
 grow_horizontal = 2
 grow_vertical = 2
@@ -43,17 +44,17 @@ pivot_offset_ratio = Vector2(250, 250)
 color = Color(0.4437306, 0.44373065, 0.44373062, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1010246845]
-position = Vector2(-92.5, 261.25)
+position = Vector2(-102.5, 261.25)
 scale = Vector2(0.99999994, 0.99999994)
 shape = SubResource("RectangleShape2D_luodq")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=1525259635]
-position = Vector2(-106.25, -292.50003)
+position = Vector2(-93.75, -290.00003)
 scale = Vector2(0.99999994, 0.99999994)
 shape = SubResource("RectangleShape2D_luodq")
 
 [node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=1475223197]
-position = Vector2(187.5, -2.4999924)
+position = Vector2(165, 2.5000072)
 rotation = 1.5707964
 shape = SubResource("RectangleShape2D_luodq")
 
@@ -70,3 +71,6 @@ position = Vector2(240, 224)
 zoom = Vector2(1.4, 1.4)
 
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
+
+[node name="Enemy Test" parent="." unique_id=1961180463 instance=ExtResource("3_8n65e")]
+position = Vector2(90, 54)
