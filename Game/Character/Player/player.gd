@@ -3,6 +3,8 @@ class_name  Player
 
 
 #region Variables 
+@onready var hitbox : Hitbox = $Hitbox
+
 
 var enemy : Node2D = null
 var lock_range : float = 300.0
@@ -47,7 +49,10 @@ var keyDown :bool = false
 #region Loop function 
 
 func _ready() -> void:
+	add_to_group("player")
 	enemy = get_tree().get_first_node_in_group("enemy")
+	
+	hitbox.is_active = false
 
 
 func _physics_process(delta: float) -> void:
@@ -106,7 +111,7 @@ func set_Time(delta) -> void:
 	
 	if timercool > 0:
 		timercool -= delta
-	
+		hitbox.is_active = false
 	else:
 		timercool = 0.0
 		if is_cooldown:
@@ -153,8 +158,7 @@ func start_dash() -> void:
 	else:
 		velocity = input_dir * DashSpeed
 	
-	
-
+	hitbox.is_active = true
 	is_dashing = true
 	timer_dash = Time_Dash
 	

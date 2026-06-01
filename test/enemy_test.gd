@@ -1,90 +1,119 @@
 extends CharacterBody2D
 
-const Speed : float = 200
-const Gravity : float = 600
-
-#time
-const IDLETime : float = 1.5
-var idletimer : float = 0.0
-
-var chase : bool = false
-var alert : bool = false
-var start : bool = false
+@onready var hurtbox : Hurtbox = $Hurtbox
 
 
-var states = States.IDLE
 
-enum States {
-	IDLE, Alerts, CHASE, DEAD
+enum State {
+	SPAWN,
+	HUNT,
+	DEAD
 }
 
+# ===== SETTINGS =====
+@export var speed := 80.0
+@export var turn_delay := 1.0
+@export var spawn_time := 0.5
 
 
 
+# ===== VARIABLES =====
+const Gravity : float = 600
 
-func _ready() -> void:
-	pass
 
 
-func _physics_process(delta: float) -> void:
-	time_set(delta)
+var state : State = State.SPAWN
+
+var target : Node2D
+
+var facing_dir := 1
+var turn_timer := 0.0
+
+
+func _ready():
+	# หา player จาก group "player"
+	target = get_tree().get_first_node_in_group("player")
+
+	# เริ่มสถานะเกิด
+	state = State.SPAWN
+
+	# รอ spawn เสร็จก่อนค่อยล่า
+	await get_tree().create_timer(spawn_time).timeout
+
+	# ถ้ายังไม่ตาย ให้เริ่มล่า
+	if state != State.DEAD:
+		state = State.HUNT
+
+
+func _physics_process(delta):
 	
+	if not is_on_floor():
+		velocity.y += Gravity * delta
 	
-	apply_gravity(delta)
-	
-	match states:
-		States.IDLE:
-			idle()
-		
-		States.Alerts:
-			Alert()
-	
-	
+	match state:
+
+		State.SPAWN:
+			velocity.x = 0
+
+		State.HUNT:
+			hunt_player(delta)
+
+		State.DEAD:
+			velocity = Vector2.ZERO
+
 	move_and_slide()
 
 
-func apply_gravity(delta) -> void:
-	if not  is_on_floor():
-		velocity.y += Gravity * delta
+func hunt_player(delta):
 
-
-
-
-#region STATES
-
-func idle() -> void:
-	if alert: 
-		states = States.Alerts
+	# ถ้าไม่มี player
+	if target == null:
+		velocity = Vector2.ZERO
 		return
-	
-	
-	velocity.x = 0
-	
-	if not start:
-		idletimer = IDLETime
-		start = true
-	
-	
-	if idletimer <= 0:
-		alert = true
+
+	# เช็ค player อยู่ซ้ายหรือขวา
+	var dir = sign(target.global_position.x - global_position.x)
+
+	# ===== ระบบหันช้า =====
+	# ถ้าต้องหัน และ cooldown หมด
+	if dir != 0 and dir != facing_dir and turn_timer <= 0.0:
+
+		facing_dir = dir
+		turn_timer = turn_delay
+
+		# กลับด้าน sprite
+		scale.x = abs(scale.x) * facing_dir
+
+	# ลดเวลาคูลดาวน์
+	if turn_timer > 0.0:
+		turn_timer -= delta
+
+	# เดินไปทางที่กำลังหันอยู่
+	velocity.x = facing_dir * speed
+	velocity.y = 0
 
 
-func Alert() -> void:
-	if alert:
-		velocity.y = -100
-		alert = false
-	
-	if not alert:
-		if is_on_floor():
-			pass
-			#states = States.CHASE
+func die():
+
+	# กันเรียกซ้ำ
+	if state == State.DEAD:
+		return
 		
-#endregion
+
+	state = State.DEAD
+
+	velocity = Vector2.ZERO
+
+	# ปิดการชน
+	hurtbox.is_invisible = true
+
+	# ลบตัวเองหลัง 1 วิ
+	await get_tree().create_timer(1.0).timeout
+
+	queue_free()
 
 
-
-
-
-func time_set(delta) -> void:
-	if idletimer > 0:
-		idletimer -= delta
+func _on_hurtbox_die() -> void:
+	
+	print("im dead")
+	die()
