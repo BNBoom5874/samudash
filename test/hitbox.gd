@@ -1,6 +1,9 @@
 class_name Hitbox
 extends Area2D
 
+signal Hit
+
+
 var is_active : bool = false : set = set_active
 
 
@@ -17,3 +20,4 @@ func set_active(value: bool) -> void:
 func _on_area_entered(area: Area2D) -> void:
 	if area is Hurtbox:
 		area.take_damage(1)
+		Hit.emit()

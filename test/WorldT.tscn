@@ -64,13 +64,19 @@ rotation = 1.5707964
 shape = SubResource("RectangleShape2D_luodq")
 
 [node name="Player" parent="." unique_id=1265944421 instance=ExtResource("2_vt5b8")]
-position = Vector2(313, 89)
+position = Vector2(231, 354)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
-position = Vector2(240, 224)
-zoom = Vector2(1.4, 1.4)
+position = Vector2(188, 232)
+zoom = Vector2(1.5, 1.5)
 
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
 
 [node name="Enemy Test" parent="." unique_id=1961180463 instance=ExtResource("3_8n65e")]
-position = Vector2(112, 359)
+position = Vector2(70, 146)
+
+[node name="Enemy Test2" parent="." unique_id=1041993179 instance=ExtResource("3_8n65e")]
+position = Vector2(131, 323)
+
+[node name="Enemy Test3" parent="." unique_id=645473751 instance=ExtResource("3_8n65e")]
+position = Vector2(309, 281)

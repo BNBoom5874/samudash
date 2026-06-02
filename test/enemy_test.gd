@@ -42,13 +42,13 @@ func _ready():
 
 	# ถ้ายังไม่ตาย ให้เริ่มล่า
 	if state != State.DEAD:
-		state = State.HUNT
+		state = State.SPAWN
 
 
 func _physics_process(delta):
 	
-	if not is_on_floor():
-		velocity.y += Gravity * delta
+	#if not is_on_floor():
+		#velocity.y += Gravity * delta
 	
 	match state:
 

@@ -23,54 +23,54 @@ grow_vertical = 0
 scale = Vector2(0.8, 0.8)
 
 [node name="UpL" type="TouchScreenButton" parent="Layout/Control" unique_id=1756448157]
-position = Vector2(24, -424)
+position = Vector2(29.999998, -370)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "up_left"
 
 [node name="Up" type="TouchScreenButton" parent="Layout/Control" unique_id=120392682]
-position = Vector2(152, -424)
+position = Vector2(158, -370)
 texture_normal = ExtResource("1_w32gj")
 action = "up"
 
 [node name="UpR" type="TouchScreenButton" parent="Layout/Control" unique_id=124055708]
-position = Vector2(280, -424)
+position = Vector2(286, -370)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "up_right"
 
 [node name="Left" type="TouchScreenButton" parent="Layout/Control" unique_id=1787214397]
-position = Vector2(24, -296)
+position = Vector2(29.999998, -241.99998)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "left"
 
 [node name="center" type="TouchScreenButton" parent="Layout/Control" unique_id=811601046]
-position = Vector2(152, -296)
+position = Vector2(158, -241.99998)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "centerbutton"
 
 [node name="Right" type="TouchScreenButton" parent="Layout/Control" unique_id=461984208]
-position = Vector2(280, -296)
+position = Vector2(286, -241.99998)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "right"
 
 [node name="DownL" type="TouchScreenButton" parent="Layout/Control" unique_id=684640408]
-position = Vector2(24, -168)
+position = Vector2(29.999998, -113.999985)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "down_left"
 
 [node name="Down" type="TouchScreenButton" parent="Layout/Control" unique_id=1301129591]
-position = Vector2(152, -168)
+position = Vector2(158, -113.999985)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "down"
 
 [node name="DownR" type="TouchScreenButton" parent="Layout/Control" unique_id=832220853]
-position = Vector2(280, -168)
+position = Vector2(286, -113.999985)
 texture_normal = ExtResource("1_w32gj")
 passby_press = true
 action = "down_right"
