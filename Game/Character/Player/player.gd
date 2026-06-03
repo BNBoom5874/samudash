@@ -22,7 +22,7 @@ const ZONE_DOT_MIN = 0.6      # ขอบโซนกว้างของแต
 
 
 const DASH_DISTANCE : float = 200.0  # ระยะวาร์ปปกติ ปรับได้
-const Gravity : float = 400.0
+const Gravity : float = 600.0
 
 var input_dir : Vector2 = Vector2.ZERO
 
@@ -31,7 +31,7 @@ var input_dir : Vector2 = Vector2.ZERO
 #time
 var gravity_scale : float = 1.0
 var gravity_recover_timer : float = 0.0
-const GRAVITY_RECOVER_TIME : float = 1.5
+const GRAVITY_RECOVER_TIME : float = 2.5
 
 
 
@@ -62,8 +62,6 @@ var keyDown :bool = false
 
 func _ready() -> void:
 	add_to_group("player")
-
-	
 	hitbox.is_active = false
 
 
@@ -77,12 +75,11 @@ func _physics_process(delta: float) -> void:
 	match states:
 		States.IDLE:
 			velocity.x = move_toward(velocity.x,0 ,600)
-			
 			handle_Dash_Input()
 			apply_gravity(delta)
 			
 		States.DASH:
-			handle_wall_collision()
+			
 			hitbox.is_active = true
 			if timer_dash <= 0:
 				timercool = Cooldown
@@ -93,11 +90,7 @@ func _physics_process(delta: float) -> void:
 			velocity.x = move_toward(velocity.x, 0, 20)
 			apply_gravity(delta)
 			if timercool <= 0.0:
-				
 				states = States.IDLE
-	
-	
-
 
 
 func get_input() -> void:
@@ -119,26 +112,23 @@ func apply_gravity(delta) -> void:
 	if gravity_scale < 1.0:
 		gravity_recover_timer += delta
 		gravity_scale = min(gravity_recover_timer / GRAVITY_RECOVER_TIME, 1.0)
+	else:
+		gravity_recover_timer = GRAVITY_RECOVER_TIME
 	
 	if not is_on_floor():
 		velocity.y += Gravity * gravity_scale * delta
 
 
 func set_Time(delta) -> void:
-
 	if timer_dash > 0:
 		timer_dash -= delta
-	
 	if timercool > 0:
 		timercool -= delta
 
 
-	#region Dash
-	
-	
-func handle_Dash_Input() -> void:
+#region Dash
 
-	
+func handle_Dash_Input() -> void:
 	if keyUp:
 		input_dir = Vector2(0, -1)
 	elif keyUpL:
@@ -158,31 +148,31 @@ func handle_Dash_Input() -> void:
 	else:
 		input_dir = Vector2.ZERO
 	
+	#เมื่อได้ทิศก็เร็วเริ่มพุ่งได้
 	if input_dir != Vector2.ZERO:
+		if is_on_floor() and input_dir.y > 0:
+			return
 		start_dash()
 		states = States.DASH
-	
-
-	
 
 
 func start_dash() -> void:
-	var candidates = find_candidates(input_dir)
+	var candidates = find_candidates(input_dir) #หาโซนตามที่กดทิศนั้นๆ
 	
-	if candidates.is_empty():
-		do_normal_dash(input_dir) #พุ่งปกติ ไม่ล็อกศัตรู
+	if candidates.is_empty(): #หาไม่เจอก็พุ่งแบบปกติ
+		do_normal_dash(input_dir)
 		return
 	
-	# ชั้น 3
-	var target = select_enemy(candidates, input_dir)
+	#ถ้าเจอ 
+	var target = select_enemy(candidates, input_dir)#หาศัตรูที่เหมาะที่สุด
 	
-	# ชั้น 4
+	#ชั้นต่อไป ล็อกได้ไหม
 	if can_lock_on(target, input_dir):
-		do_lock_dash(target)
+		do_lock_dash(target)#ถ้า target ล็อกได้ ก็เลือกเลย
 	else:
 		do_normal_dash(input_dir)
 	
-	timer_dash = Time_Dash
+
 
 
 func find_candidates(input_dir: Vector2) -> Array:
@@ -196,7 +186,7 @@ func find_candidates(input_dir: Vector2) -> Array:
 			candidates.append(enemy)
 	
 	return candidates
-	
+
 
 func select_enemy(candidates: Array, input_dir: Vector2) -> Node:
 	var nearest = null
@@ -207,7 +197,7 @@ func select_enemy(candidates: Array, input_dir: Vector2) -> Node:
 	for enemy in candidates:
 		var diff = enemy.global_position - global_position
 		var dist = diff.length()
-		var dot = input_dir.normalized().dot(diff.normalized())
+		var dot = input_dir.normalized().dot(diff.normalized())  #หันไปทางเดียวกันไหม
 		
 		if dist < nearest_dist:
 			nearest_dist = dist
@@ -217,99 +207,75 @@ func select_enemy(candidates: Array, input_dir: Vector2) -> Node:
 			best_dot = dot
 			best_angle = enemy
 	
-	# ถ้าเป็นตัวเดียวกัน จบเลย
-	if nearest == best_angle:
+	if nearest == best_angle:#ถ้าตัวเดียวกัน ก็ทำงานได้เลย
 		return nearest
 	
-	# ยิงเส้นตรงไปหาตัวตรงองศา ดูว่าผ่านตัวใกล้ไหม
 	var space = get_world_2d().direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(
 		global_position,
 		best_angle.global_position
 	)
-	query.exclude = [self]
+	query.exclude = [self]  #ให้เส้นraycast พุ่งทะลุตัวเราไปเลย
 	var result = space.intersect_ray(query)
 	
 	if result and result.collider == nearest:
-		return nearest  # เส้นผ่านตัวใกล้ → เลือกตัวใกล้
+		return nearest
 	else:
-		return best_angle  # ไม่ผ่าน → เลือกตัวตรงองศา
+		return best_angle
 
 
 func can_lock_on(enemy: Node, input_dir: Vector2) -> bool:
 	var diff = enemy.global_position - global_position
 	
-	# ทิศตรง (บน/ล่าง/ซ้าย/ขวา)
 	if input_dir.x == 0 or input_dir.y == 0:
-		if input_dir.x == 0:  # พุ่งขึ้นหรือลง → เช็คแกน x
+		if input_dir.x == 0:
 			return abs(diff.x) <= CARDINAL_SNAP
-		else:                  # พุ่งซ้ายหรือขวา → เช็คแกน y
+		else:
 			return abs(diff.y) <= CARDINAL_SNAP
 	
-	# ทิศเฉียง
 	var dot = input_dir.normalized().dot(diff.normalized())
 	return dot >= DIAGONAL_DOT_MIN
 
-func do_lock_dash(target: Node):
+
+func do_lock_dash(target: Node) -> void:
 	gravity_scale = 0.0
 	gravity_recover_timer = 0.0
-
-	
-	var safe_pos = get_safe_warp(global_position, target.global_position)
-	
-	
-	
-	global_position = safe_pos
+	var result = get_safe_warp_result(global_position, target.global_position)
+	global_position = result.position
 	timer_dash = 0.1
-	
 
-func do_normal_dash(input_dir: Vector2):
-	var far_pos = global_position + input_dir.normalized() * 1500.0
-	var safe_pos = get_safe_warp(global_position, far_pos)
-	global_position = safe_pos
+
+func do_normal_dash(input_dir: Vector2) -> void:
+	var far_pos = global_position + input_dir.normalized() * 800.0
+	var result = get_safe_warp_result(global_position, far_pos)
+	global_position = result.position
+	if result.hit:
+		velocity = result.normal * 300
 	timercool = Cooldown
-	states = States.COOLDOWN
-	
-func handle_wall_collision() -> void:
-	if states == States.COOLDOWN : return
-	if  (is_on_wall() or is_on_ceiling()):
-		velocity = get_wall_normal() * 300
-		timercool = Cooldown
-		states = States.COOLDOWN
 
 
-
-
-
-	#endregion
-
-
-
-func get_safe_warp(from: Vector2, to: Vector2) -> Vector2:
+func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
 	var space = get_world_2d().direct_space_state
 	var query = PhysicsRayQueryParameters2D.create(from, to)
 	query.exclude = [self]
-	query.collision_mask = 1  # เลข layer ของกำแพง ปรับให้ตรงกับโปรเจกต์
+	query.collision_mask = 1
 	var result = space.intersect_ray(query)
 	
 	if result:
-		# มีกำแพงขวาง → หยุดแค่หน้ากำแพง
-		return result.position - (to - from).normalized() * 8.0
-	return to
+		var safe_pos = result.position - (to - from).normalized() * 8.0
+		return {"position": safe_pos, "hit": true, "normal": result.normal}
+	return {"position": to, "hit": false, "normal": Vector2.ZERO}
 
+#endregion
 
 #endregion
 
 
-
-
-
 func _on_hurtbox_die() -> void:
-	pass # Replace with function body.
+	pass
 
 
 func _on_hitbox_hit() -> void:
-
 	gravity_scale = 0.0
 	gravity_recover_timer = 0.0
 	timercool = 0
