@@ -1,4 +1,6 @@
+class_name BeseEnemy
 extends CharacterBody2D
+
 
 signal die
 
@@ -16,3 +18,5 @@ func take_damage(amount) -> void:
 
 func Die() -> void:
 	die.emit()
+	await get_tree().create_timer(1.0).timeout
+	queue_free()

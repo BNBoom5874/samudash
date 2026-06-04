@@ -2,7 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://b1mg6hru5saio" path="res://Ui/controller.tscn" id="2_8n65e"]
 [ext_resource type="PackedScene" uid="uid://bkh7ipi0ebjal" path="res://Game/Character/player.tscn" id="2_vt5b8"]
-[ext_resource type="PackedScene" uid="uid://bcyincdyu0h83" path="res://test/enemy_test.tscn" id="3_8n65e"]
+[ext_resource type="Script" uid="uid://dtlimp7qnqhc7" path="res://test/spawn test/wave_manager.gd" id="4_1fco8"]
+[ext_resource type="Script" uid="uid://bqu2owo77d2im" path="res://test/spawn test/spawn_controller.gd" id="5_gtwsp"]
+[ext_resource type="PackedScene" uid="uid://gwhdjnmbmf80" path="res://test/spawn test/zone.tscn" id="6_gtwsp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_luodq"]
 size = Vector2(738.125, 49.374996)
@@ -72,11 +74,42 @@ zoom = Vector2(1.5, 1.5)
 
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
 
-[node name="Enemy Test" parent="." unique_id=1961180463 instance=ExtResource("3_8n65e")]
-position = Vector2(70, 146)
+[node name="spawn" type="Node" parent="." unique_id=1285284702]
 
-[node name="Enemy Test2" parent="." unique_id=1041993179 instance=ExtResource("3_8n65e")]
-position = Vector2(131, 323)
+[node name="waveManager" type="Node" parent="spawn" unique_id=1121137337 node_paths=PackedStringArray("spawn_controller")]
+script = ExtResource("4_1fco8")
+spawn_controller = NodePath("../SpawnController")
 
-[node name="Enemy Test3" parent="." unique_id=645473751 instance=ExtResource("3_8n65e")]
-position = Vector2(309, 281)
+[node name="SpawnController" type="Node" parent="spawn" unique_id=411218324 node_paths=PackedStringArray("wave_manager", "zone_group")]
+script = ExtResource("5_gtwsp")
+wave_manager = NodePath("../waveManager")
+zone_group = NodePath("../Zones")
+
+[node name="spawnTime" type="Timer" parent="spawn/SpawnController" unique_id=2046383905]
+one_shot = true
+
+[node name="Zones" type="Node2D" parent="spawn" unique_id=217236378]
+
+[node name="Zone" parent="spawn/Zones" unique_id=1728175236 instance=ExtResource("6_gtwsp")]
+position = Vector2(118, 484)
+
+[node name="Zone2" parent="spawn/Zones" unique_id=146534138 instance=ExtResource("6_gtwsp")]
+position = Vector2(148, 280)
+
+[node name="Zone3" parent="spawn/Zones" unique_id=191177790 instance=ExtResource("6_gtwsp")]
+position = Vector2(157, 123)
+
+[node name="Zone4" parent="spawn/Zones" unique_id=1901304291 instance=ExtResource("6_gtwsp")]
+position = Vector2(415, 151)
+
+[node name="Zone5" parent="spawn/Zones" unique_id=511901549 instance=ExtResource("6_gtwsp")]
+position = Vector2(411, 254)
+
+[node name="Zone6" parent="spawn/Zones" unique_id=1099177407 instance=ExtResource("6_gtwsp")]
+position = Vector2(423, 437)
+
+[node name="Zone7" parent="spawn/Zones" unique_id=184311080 instance=ExtResource("6_gtwsp")]
+position = Vector2(250, 463)
+
+[node name="Zone8" parent="spawn/Zones" unique_id=1446538992 instance=ExtResource("6_gtwsp")]
+position = Vector2(278, 109)

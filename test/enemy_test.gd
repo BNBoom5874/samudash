@@ -1,4 +1,4 @@
-extends CharacterBody2D
+extends BeseEnemy
 
 @onready var hurtbox : Hurtbox = $Hurtbox
 
@@ -14,7 +14,6 @@ enum State {
 @export var speed := 80.0
 @export var turn_delay := 1.0
 @export var spawn_time := 0.5
-
 
 
 # ===== VARIABLES =====
@@ -34,6 +33,7 @@ func _ready():
 	# หา player จาก group "player"
 	target = get_tree().get_first_node_in_group("player")
 
+
 	# เริ่มสถานะเกิด
 	state = State.SPAWN
 
@@ -42,7 +42,7 @@ func _ready():
 
 	# ถ้ายังไม่ตาย ให้เริ่มล่า
 	if state != State.DEAD:
-		state = State.SPAWN
+		state = State.HUNT
 
 
 func _physics_process(delta):
@@ -53,22 +53,32 @@ func _physics_process(delta):
 	match state:
 
 		State.SPAWN:
+			
 			velocity.x = 0
+			hunt_player(delta)
+			#จากแอนิเมชั่นเล่นเสร็จ  ถ้าทิศแนวนอนที่หันไม่เจอผู้เล่น รอ 1.0 วิให้หันไปอีกทาง ทำเทำเรื่อยๆจนกว่าจะเจอ 
+			#ถ้ากัน ซ้ายขวาแล้วไม่เจอ  รออีก 0.5 วิ  เพื่อเงย หน้า  ถ้าเจอ ก็reaction แล้วล่าได้ทันที  การกันจะกลับมาแบบ ไม่ดีเลย์  เว้นซะว่าจะกำหนด
 
 		State.HUNT:
+			apply_gravity(delta)
 			hunt_player(delta)
 
 		State.DEAD:
 			velocity = Vector2.ZERO
+			
 
 	move_and_slide()
+
+
+
+
+#region States Functions 
 
 
 func hunt_player(delta):
 
 	# ถ้าไม่มี player
 	if target == null:
-		velocity = Vector2.ZERO
 		return
 
 	# เช็ค player อยู่ซ้ายหรือขวา
@@ -90,30 +100,22 @@ func hunt_player(delta):
 
 	# เดินไปทางที่กำลังหันอยู่
 	velocity.x = facing_dir * speed
-	velocity.y = 0
 
 
-func die():
 
-	# กันเรียกซ้ำ
-	if state == State.DEAD:
-		return
-		
 
-	state = State.DEAD
+#endregion
 
-	velocity = Vector2.ZERO
 
-	# ปิดการชน
-	hurtbox.is_invisible = true
+#region Custom Functions 
 
-	# ลบตัวเองหลัง 1 วิ
-	await get_tree().create_timer(1.0).timeout
+func apply_gravity(delta) -> void:
+	if not is_on_floor() :
+		velocity.y += Gravity * delta
 
-	queue_free()
-
+#endregion
 
 func _on_hurtbox_die() -> void:
-	
-	print("im dead")
-	die()
+	remove_from_group("enemy")
+	Die() #สืบทอดจาก BeseEnemy
+	state = State.DEAD

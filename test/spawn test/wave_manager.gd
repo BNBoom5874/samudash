@@ -1,6 +1,8 @@
 class_name WaveManager
 extends Node
 
+@export var spawn_controller : Node  
+
 var waves : Array = []
 var current_index :int = 0
 var current_kills :int = 0
@@ -8,16 +10,20 @@ var current_kills :int = 0
 
 func _ready() -> void:
 	setup_waves()
+	spawn_controller.receive_wave(waves[current_index])
 	
 
 
 func on_enemy_died() -> void:
 	current_kills += 1
-	
+
+	print("enemy died")
+	print(current_kills)
+
 	if current_kills >= waves[current_index].total_count():
+		print("WAVE END")
+		spawn_controller.stop_spawning()
 		_next_wave()
-
-
 
 func _next_wave() -> void:
 	current_kills = 0
@@ -27,6 +33,8 @@ func _next_wave() -> void:
 	if current_index >= waves.size():
 		print("จบ")
 		return
+	
+	spawn_controller.receive_wave(waves[current_index])
 
 
 
@@ -34,10 +42,12 @@ func _next_wave() -> void:
 
 func setup_waves() -> void:
 	var wave1 = WaveData.new()
-	wave1.enemies = [{"scene":preload("uid://bcyincdyu0h83"), "count":2}]
+	wave1.enemies = [{"scene":preload("uid://bcyincdyu0h83"), "count":4}]
 	
 	wave1.simultaneous_max = 1
+	wave1.simultaneous_chance = 0.7
 	wave1.limit_map = 2
-	wave1.spawn_delay = 1.0
+	wave1.spawn_delay = 3.0
+	#wave1.allowed_zones = ["zone"]
 	
 	waves = [wave1]
