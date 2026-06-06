@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://b1mg6hru5saio" path="res://Ui/controller.tscn" id="2_8n65e"]
 [ext_resource type="PackedScene" uid="uid://bkh7ipi0ebjal" path="res://Game/Character/player.tscn" id="2_vt5b8"]
+[ext_resource type="Script" uid="uid://dwwsn3r4jcdhd" path="res://test/Score test/score_test.gd" id="3_gtwsp"]
 [ext_resource type="Script" uid="uid://dtlimp7qnqhc7" path="res://test/spawn test/wave_manager.gd" id="4_1fco8"]
 [ext_resource type="Script" uid="uid://bqu2owo77d2im" path="res://test/spawn test/spawn_controller.gd" id="5_gtwsp"]
 [ext_resource type="PackedScene" uid="uid://gwhdjnmbmf80" path="res://test/spawn test/zone.tscn" id="6_gtwsp"]
@@ -9,14 +10,16 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_luodq"]
 size = Vector2(738.125, 49.374996)
 
+[sub_resource type="SystemFont" id="SystemFont_gtwsp"]
+
 [node name="World" type="Node2D" unique_id=62650097]
 position = Vector2(72, 88)
 metadata/_edit_lock_ = true
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1173590863]
+[node name="map" type="CanvasLayer" parent="." unique_id=1173590863]
 layer = -1
 
-[node name="ColorRect" type="ColorRect" parent="CanvasLayer" unique_id=2125979128]
+[node name="ColorRect" type="ColorRect" parent="map" unique_id=2125979128]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -69,10 +72,24 @@ shape = SubResource("RectangleShape2D_luodq")
 position = Vector2(231, 354)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
-position = Vector2(188, 232)
-zoom = Vector2(1.5, 1.5)
+position = Vector2(210, 212)
+zoom = Vector2(1.46, 1.46)
 
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
+
+[node name="Label" type="Label" parent="controller" unique_id=1185428097 node_paths=PackedStringArray("wave_manager")]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 55.0
+grow_horizontal = 2
+theme_override_fonts/font = SubResource("SystemFont_gtwsp")
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+script = ExtResource("3_gtwsp")
+wave_manager = NodePath("../../spawn/waveManager")
 
 [node name="spawn" type="Node" parent="." unique_id=1285284702]
 

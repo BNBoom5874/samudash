@@ -1,66 +1,56 @@
 extends CharacterBody2D
-class_name  Player
+class_name Player
 
-
-#region Variables 
+#region Variables
 @onready var hitbox : Hitbox = $Hitbox
 @onready var hurtbox : Hurtbox = $Hurtbox
 
-enum States{
-	IDLE, DASH, COOLDOWN, DEAD
-}
-
+enum States { IDLE, DASH, HIT_SLIDE, COOLDOWN, DEAD }
 var states = States.IDLE
 
+const CARDINAL_SNAP    = 40.0
+const DIAGONAL_DOT_MIN = 0.85
+const ZONE_DOT_MIN     = 0.6
 
-const CARDINAL_SNAP = 40.0    # px ที่ยอมให้เบี่ยงสำหรับทิศตรง
-const DIAGONAL_DOT_MIN = 0.85 # ความตรงขั้นต่ำสำหรับทิศเฉียง
-const ZONE_DOT_MIN = 0.6      # ขอบโซนกว้างของแต่ละทิศ รับศัตรูได้กว้างแต่ไหน
+const DASH_DISTANCE : float = 80.0
+const Gravity       : float = 600.0
+const Cooldown      : float = 0.45
+const Time_Dash     : float = 0.1
+const PLAYER_RADIUS : float = 10.0
 
-const DASH_DISTANCE : float = 200.0
-const Gravity : float = 600.0
+var input_dir  : Vector2 = Vector2.ZERO
+var timer_dash : float   = 0.0
+var timercool  : float   = 0.0
 
-var input_dir : Vector2 = Vector2.ZERO
-
-const Cooldown : float = 0.5
-const Time_Dash : float = 0.5
-
-var timer_dash : float = 0.0
-var timercool : float = 0.0
-
-#input
-var keyUp :bool = false
-var keyUpL :bool = false
-var keyUpR :bool = false
-var keyLeft :bool = false
-var keyRight :bool = false
-var keyCenter :bool = false
-var keyDownL :bool = false
-var keyDownR :bool = false
-var keyDown :bool = false
-
+var keyUp     : bool = false
+var keyUpL    : bool = false
+var keyUpR    : bool = false
+var keyLeft   : bool = false
+var keyRight  : bool = false
+var keyCenter : bool = false
+var keyDownL  : bool = false
+var keyDownR  : bool = false
+var keyDown   : bool = false
 #endregion
 
-#region Loop function 
+#region Loop
 
 func _ready() -> void:
 	add_to_group("player")
 	hitbox.is_active = false
 
-
 func _physics_process(delta: float) -> void:
 	set_Time(delta)
 	get_input()
 
-	if states == States.IDLE or (states == States.COOLDOWN and timercool <= 0.0):
+	if states == States.IDLE or states == States.HIT_SLIDE or (states == States.COOLDOWN and timercool <= 0.0):
 		handle_Dash_Input()
 
 	match states:
 		States.IDLE:
 			apply_gravity(delta)
-			velocity.x = move_toward(velocity.x, 0, 0.5)
-			if is_on_floor():
-				velocity.x = 0
+			velocity.x = lerp(velocity.x, 0.0, 50 * delta)
+			
 
 		States.DASH:
 			hitbox.is_active = true
@@ -74,59 +64,58 @@ func _physics_process(delta: float) -> void:
 			apply_gravity(delta)
 			if timercool <= 0.0:
 				states = States.IDLE
+		
+		States.HIT_SLIDE:
+			apply_gravity(delta)
+			velocity.x = lerp(velocity.x, 0.0, 1.0 * delta)
+			
+			if velocity.length() < 20.0 or is_on_floor():
+				states = States.IDLE
 
 	move_and_slide()
 
-
 func get_input() -> void:
-	keyUp    = Input.is_action_just_pressed("up")
-	keyUpL   = Input.is_action_just_pressed("up_left")
-	keyUpR   = Input.is_action_just_pressed("up_right")
-	keyLeft  = Input.is_action_just_pressed("left")
-	keyRight = Input.is_action_just_pressed("right")
+	keyUp     = Input.is_action_just_pressed("up")
+	keyUpL    = Input.is_action_just_pressed("up_left")
+	keyUpR    = Input.is_action_just_pressed("up_right")
+	keyLeft   = Input.is_action_just_pressed("left")
+	keyRight  = Input.is_action_just_pressed("right")
 	keyCenter = Input.is_action_just_pressed("centerbutton")
-	keyDownL = Input.is_action_just_pressed("down_left")
-	keyDownR = Input.is_action_just_pressed("down_right")
-	keyDown  = Input.is_action_just_pressed("down")
+	keyDownL  = Input.is_action_just_pressed("down_left")
+	keyDownR  = Input.is_action_just_pressed("down_right")
+	keyDown   = Input.is_action_just_pressed("down")
 
 #endregion
 
-#region Custom functions 
+#region Helpers
 
 func apply_gravity(delta) -> void:
 	if not is_on_floor():
 		velocity.y += Gravity * delta
 
-
 func set_Time(delta) -> void:
-	if timer_dash > 0:
-		timer_dash -= delta
-	if timercool > 0:
-		timercool -= delta
+	if timer_dash > 0: timer_dash -= delta
+	if timercool  > 0: timercool  -= delta
 
+func get_center_of(node: Node) -> Vector2:
+	var hurtbox = node.get_node_or_null("Hurtbox")
+	if hurtbox:
+		return hurtbox.global_position
+	return node.global_position
 #endregion
 
 #region Dash
 
 func handle_Dash_Input() -> void:
-	if keyUp:
-		input_dir = Vector2(0, -1)
-	elif keyUpL:
-		input_dir = Vector2(-1, -1).normalized()
-	elif keyUpR:
-		input_dir = Vector2(1, -1).normalized()
-	elif keyLeft:
-		input_dir = Vector2(-1, 0)
-	elif keyRight:
-		input_dir = Vector2(1, 0)
-	elif keyDown:
-		input_dir = Vector2(0, 1)
-	elif keyDownL:
-		input_dir = Vector2(-1, 1).normalized()
-	elif keyDownR:
-		input_dir = Vector2(1, 1).normalized()
-	else:
-		input_dir = Vector2.ZERO
+	if keyUp:      input_dir = Vector2(0, -1)
+	elif keyUpL:   input_dir = Vector2(-1, -1).normalized()
+	elif keyUpR:   input_dir = Vector2( 1, -1).normalized()
+	elif keyLeft:  input_dir = Vector2(-1,  0)
+	elif keyRight: input_dir = Vector2( 1,  0)
+	elif keyDown:  input_dir = Vector2(0,   1)
+	elif keyDownL: input_dir = Vector2(-1,  1).normalized()
+	elif keyDownR: input_dir = Vector2( 1,  1).normalized()
+	else:          input_dir = Vector2.ZERO
 
 	if input_dir != Vector2.ZERO:
 		if is_on_floor() and input_dir.y > 0:
@@ -152,9 +141,12 @@ func find_nearest_in_direction(dir: Vector2) -> Node:
 	for enemy in enemies:
 		if not is_valid_target(enemy):
 			continue
-		var diff = enemy.global_position - global_position
+		var enemy_center = get_center_of(enemy)
+		var diff = enemy_center - global_position
+		var dist = diff.length()
+		if dist > DASH_DISTANCE:
+			continue
 		if dir.normalized().dot(diff.normalized()) > ZONE_DOT_MIN:
-			var dist = diff.length()
 			if dist < nearest_dist:
 				nearest_dist = dist
 				nearest = enemy
@@ -163,67 +155,88 @@ func find_nearest_in_direction(dir: Vector2) -> Node:
 
 
 func is_valid_target(enemy: Node) -> bool:
-	if not is_instance_valid(enemy):
-		return false
+	if not is_instance_valid(enemy): return false
 	return enemy.get_node_or_null("Hurtbox") != null
 
 
-@warning_ignore("shadowed_variable")
-func can_lock_on(enemy: Node, input_dir: Vector2) -> bool:
-	var diff = enemy.global_position - global_position
+func can_lock_on(enemy: Node, dir: Vector2) -> bool:
+	var enemy_center = get_center_of(enemy)
+	var diff = enemy_center - global_position
 
-	if input_dir.x == 0 or input_dir.y == 0:
-		if input_dir.x == 0:
+	if dir.x == 0 or dir.y == 0:
+		if dir.x == 0:
 			return abs(diff.x) <= CARDINAL_SNAP
 		else:
 			return abs(diff.y) <= CARDINAL_SNAP
 
-	var dot = input_dir.normalized().dot(diff.normalized())
-	return dot >= DIAGONAL_DOT_MIN
-
+	return dir.normalized().dot(diff.normalized()) >= DIAGONAL_DOT_MIN
 
 func do_lock_dash(target: Node) -> void:
-	var result = get_safe_warp_result(global_position, target.global_position)
+	var enemy_center = get_center_of(target)
+	var diff = enemy_center - global_position
+
+	if diff.length() > DASH_DISTANCE:
+		do_normal_dash(input_dir)
+		return
+
+	var result = get_safe_warp_result(global_position, enemy_center)
 	global_position = result.position
-	timer_dash = 0.1
+	timer_dash = Time_Dash
+	
+	# แรงพุ่งเหลือทิศเดิม
+	velocity = input_dir.normalized() * 150.0
 
 
-@warning_ignore("shadowed_variable")
-func do_normal_dash(input_dir: Vector2) -> void:
-	var far_pos = global_position + input_dir.normalized() * 800.0
-	var result = get_safe_warp_result(global_position, far_pos)
+func do_normal_dash(dir: Vector2) -> void:
+	var far_pos = global_position + dir.normalized() * DASH_DISTANCE
+	var result  = get_safe_warp_result(global_position, far_pos)
 	global_position = result.position
-	if result.hit:
-		velocity = input_dir.bounce(result.normal) * 350.0
+	if result.hit and result.normal != Vector2.ZERO:
+		velocity = dir.bounce(result.normal) * 350.0
+	else:
+		velocity = dir.normalized() * 150.0
 	timercool = Cooldown
-
 
 func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
 	var space = get_world_2d().direct_space_state
-	var query = PhysicsRayQueryParameters2D.create(from, to)
+
+	var shape = CircleShape2D.new()
+	shape.radius = PLAYER_RADIUS
+
+	var query = PhysicsShapeQueryParameters2D.new()
+	query.shape = shape
+	query.transform = Transform2D(0.0, from)
+	query.motion = to - from
 	query.exclude = [self]
 	query.collision_mask = 1
-	var result = space.intersect_ray(query)
 
-	if result:
-		var safe_pos = result.position - (to - from).normalized() * 16.0
-		return {"position": safe_pos, "hit": true, "normal": result.normal}
+	var result = space.cast_motion(query)
+
+	if result[0] < 1.0:
+		var safe_pos = from + (to - from) * result[0]
+		var ray_query = PhysicsRayQueryParameters2D.create(from, to)
+		ray_query.exclude = [self]
+		ray_query.collision_mask = 1
+		var ray_result = space.intersect_ray(ray_query)
+		var normal = ray_result.get("normal", Vector2.ZERO)
+		return {"position": safe_pos, "hit": true, "normal": normal}
+
 	return {"position": to, "hit": false, "normal": Vector2.ZERO}
 
 #endregion
 
+#region Signals
 
-
-#region Signal
 func _on_hurtbox_die() -> void:
 	pass
 
-
 func _on_hitbox_hit() -> void:
-	hitbox.is_active = false
-	velocity.x = randi_range(-200, 200)
-	velocity.y = randi_range(-100, -40)
 	timercool = 0
-	states = States.IDLE
+	hitbox.is_active = false
+	velocity = input_dir.normalized() * 850.0
+	if is_on_floor():
+		velocity.y -= 60.0  # ลอยขึ้นนิดนึงให้รู้สึก
+	
+	states = States.HIT_SLIDE
 
 #endregion

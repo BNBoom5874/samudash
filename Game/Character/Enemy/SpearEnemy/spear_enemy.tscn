@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://dr1qvvlklshwt"]
+
+[ext_resource type="Script" uid="uid://ds1qmo0swsjug" path="res://Game/Character/Enemy/SpearEnemy/spear_enemy.gd" id="1_c61ha"]
+[ext_resource type="Script" uid="uid://drjf2pdmxhrje" path="res://test/hurtbox.gd" id="2_8um8t"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_c61ha"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gre4n"]
+
+[node name="Spear_enemy" type="CharacterBody2D" unique_id=1531514207]
+collision_layer = 4
+script = ExtResource("1_c61ha")
+bounce_force = 200.0
+slide_force = 20.0
+Nor_Gravity = 400.0
+reaction = 0.5
+stamina_Max = 5.0
+stun_time = 5.0
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=221669696]
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(1, 0.9834755, 0.10376221, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1842361496]
+position = Vector2(10, 10)
+shape = SubResource("RectangleShape2D_c61ha")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=608742539]
+collision_layer = 64
+collision_mask = 8
+script = ExtResource("2_8um8t")
+metadata/_custom_type_script = "uid://drjf2pdmxhrje"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1613369957]
+position = Vector2(10, 10)
+shape = SubResource("RectangleShape2D_gre4n")
+debug_color = Color(0.16193393, 0.6999999, 0, 0.42)
+
+[connection signal="die" from="Hurtbox" to="." method="_on_hurtbox_die"]

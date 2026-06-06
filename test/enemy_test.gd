@@ -1,4 +1,4 @@
-extends BeseEnemy
+extends BaseEnemy
 
 @onready var hurtbox : Hurtbox = $Hurtbox
 
@@ -13,7 +13,7 @@ enum State {
 # ===== SETTINGS =====
 @export var speed := 80.0
 @export var turn_delay := 1.0
-@export var spawn_time := 0.5
+
 
 
 # ===== VARIABLES =====
@@ -30,6 +30,7 @@ var turn_timer := 0.0
 
 
 func _ready():
+	add_to_group("enemy")
 	# หา player จาก group "player"
 	target = get_tree().get_first_node_in_group("player")
 

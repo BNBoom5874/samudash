@@ -3,6 +3,9 @@
 [ext_resource type="Texture2D" uid="uid://k67rih8h5xrr" path="res://icon.svg" id="1_w32gj"]
 
 [node name="controller" type="CanvasLayer" unique_id=851171353]
+process_thread_group = 2
+process_thread_group_order = 0
+process_thread_messages = 0
 
 [node name="Layout" type="Control" parent="." unique_id=100647568]
 layout_mode = 3
