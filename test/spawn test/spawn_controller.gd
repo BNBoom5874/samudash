@@ -11,7 +11,7 @@ var spawn_token: int = 0
 func _ready() -> void:
 	zones = zone_group.get_children()
 
-func receive_wave(wave: WaveData) -> void:
+func receive_wave(wave: WaveData) -> void: #อัปเดตระดับ wave 
 	current_wave = wave
 	spawn_token += 1
 	_spawn_wave(spawn_token)

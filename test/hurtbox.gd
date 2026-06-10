@@ -22,7 +22,6 @@ var is_invisible: bool:
 func _physics_process(delta: float) -> void:
 	if health <= 0:
 		return
-
 	if timer_invisible > 0.0:
 		timer_invisible -= delta
 		if timer_invisible <= 0.0:
@@ -31,7 +30,10 @@ func _physics_process(delta: float) -> void:
 func take_damage(value: int) -> void:
 	if health <= 0:
 		return
-
+	
+	if not is_instance_valid(self):
+		return
+	
 	health -= value
 	hurt.emit()
 

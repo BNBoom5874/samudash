@@ -12,7 +12,7 @@ const CARDINAL_SNAP    = 40.0
 const DIAGONAL_DOT_MIN = 0.85
 const ZONE_DOT_MIN     = 0.6
 
-const DASH_DISTANCE : float = 80.0
+const DASH_DISTANCE : float = 100.0
 const Gravity       : float = 600.0
 const Cooldown      : float = 0.45
 const Time_Dash     : float = 0.1
@@ -37,6 +37,7 @@ var keyDown   : bool = false
 
 func _ready() -> void:
 	add_to_group("player")
+	set_hurtbox(false)
 	hitbox.is_active = false
 
 func _physics_process(delta: float) -> void:
@@ -51,25 +52,32 @@ func _physics_process(delta: float) -> void:
 			apply_gravity(delta)
 			velocity.x = lerp(velocity.x, 0.0, 50 * delta)
 			
+			
 
 		States.DASH:
+			set_hurtbox(true)
 			hitbox.is_active = true
 			if timer_dash <= 0:
 				timercool = Cooldown
 				states = States.COOLDOWN
 
 		States.COOLDOWN:
+			set_hurtbox(false)
 			hitbox.is_active = false
+			
 			velocity.x = move_toward(velocity.x, 0, 20)
 			apply_gravity(delta)
 			if timercool <= 0.0:
 				states = States.IDLE
 		
 		States.HIT_SLIDE:
-			apply_gravity(delta)
-			velocity.x = lerp(velocity.x, 0.0, 1.0 * delta)
+			set_hurtbox(false)
+			hitbox.is_active = false
 			
-			if velocity.length() < 20.0 or is_on_floor():
+			apply_gravity(delta)
+			velocity.x = move_toward(velocity.x, 0, 2)
+			
+			if velocity.length() < 10.0 or is_on_floor():
 				states = States.IDLE
 
 	move_and_slide()
@@ -98,10 +106,17 @@ func set_Time(delta) -> void:
 	if timercool  > 0: timercool  -= delta
 
 func get_center_of(node: Node) -> Vector2:
-	var hurtbox = node.get_node_or_null("Hurtbox")
-	if hurtbox:
-		return hurtbox.global_position
+	var target_hurtbox = node.get_node_or_null("Hurtbox")
+	if target_hurtbox:
+		return target_hurtbox.global_position
 	return node.global_position
+
+func set_hurtbox(value :bool) -> void:
+	if not is_instance_valid(hurtbox):
+		return
+	
+	hurtbox.is_invisible = value
+
 #endregion
 
 #region Dash
@@ -228,15 +243,20 @@ func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
 #region Signals
 
 func _on_hurtbox_die() -> void:
-	pass
+	print("โดนนนนน")
+	set_hurtbox(true)
+	queue_free()
 
 func _on_hitbox_hit() -> void:
 	timercool = 0
+	
 	hitbox.is_active = false
-	velocity = input_dir.normalized() * 850.0
-	if is_on_floor():
-		velocity.y -= 60.0  # ลอยขึ้นนิดนึงให้รู้สึก
+	velocity = input_dir.normalized() * 650.0
+	  # ลอยขึ้นนิดนึงให้รู้สึก
 	
 	states = States.HIT_SLIDE
 
+
+func _on_hurtbox_hurt() -> void:
+	pass
 #endregion

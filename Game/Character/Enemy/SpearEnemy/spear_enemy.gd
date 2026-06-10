@@ -1,5 +1,9 @@
 extends BaseEnemy
 
+@onready var hurtbox : Hurtbox = $Hurtbox
+@onready var hitbox : Hitbox = $Hitbox
+
+@onready var states_label : Label = $StatesLabel
 
 var target : Node2D = null
 
@@ -51,6 +55,7 @@ func handle_States(delta: float) -> void:
 			_Idle()
 		
 		States.CHASE:
+			hitbox.is_active = true
 			apply_gravity(delta)
 			_Chase(delta)
 			
@@ -62,7 +67,7 @@ func handle_States(delta: float) -> void:
 		States.STUN:
 			
 			apply_gravity(delta)
-			velocity.x = lerp(velocity.x, 0.0, friction * delta)
+			velocity.x = lerp(velocity.x, 0.0, friction )
 		
 		States.DEAD:
 			apply_gravity(delta)
@@ -149,10 +154,12 @@ func stun_stamina() -> void:
 func reaction_state(new_state: States) -> void:
 	if is_reaction:
 		return
+	if current_state == States.DEAD:
+		return
 	
 	is_reaction = true
 	await get_tree().create_timer(reaction).timeout
-	if current_state != States.STUN:
+	if current_state != States.STUN and current_state != States.DEAD:
 		change_State(new_state)
 	is_reaction = false
 
@@ -163,9 +170,10 @@ func change_State(new_state: States) -> void:
 		States.IDLE:
 			pass
 		States.STUN:
-			if not is_stun_wall and stamina <= 0:
-				stamina = stamina_Max
-				print("เติมมาเต็ม")
+			if not is_stun_wall :
+				if stamina <= 0:
+					stamina = stamina_Max
+					
 			is_stun_wall = false
 	
 	current_state = new_state
@@ -174,18 +182,21 @@ func change_State(new_state: States) -> void:
 	match current_state:
 		States.SPAWN:
 			_Spawn()
+			hitbox.is_active = false
 		
 		States.IDLE:
-			pass
+			hitbox.is_active = false
 		
 		States.CHASE:
+			hitbox.is_active = false
 			var dir = sign(target.global_position.x - global_position.x)
 			facing_dir = dir
 		
 		States.BREAK:
-			pass
+			hitbox.is_active = false
 		
 		States.STUN:
+			hitbox.is_active = false
 			if is_stun_wall:
 				stun_wall()
 				get_tree().create_timer(stun_wall_time).timeout.connect(func():
@@ -198,11 +209,13 @@ func change_State(new_state: States) -> void:
 						change_State(States.IDLE))
 			
 		States.DEAD:
+			
 			stun_stamina()
+			Die()
 		
 	
 
-	print("Change to ",States.keys()[new_state])
+	states_label.text = str(States.keys()[new_state])
 
 
 
@@ -217,6 +230,8 @@ func apply_gravity( delta) -> void:
 
 
 func _on_hurtbox_die() -> void:
-	change_State(States.DEAD)
+	hitbox.is_active = false
+	if current_state != States.DEAD:
+		change_State(States.DEAD)
 	remove_from_group("enemy")
-	Die()
+	print("ตุ๊ยดุ่ย")

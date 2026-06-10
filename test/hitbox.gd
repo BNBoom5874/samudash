@@ -8,7 +8,7 @@ var is_active : bool = false : set = set_active
 
 
 func _ready() -> void:
-	pass
+	area_entered.connect(_on_area_entered)
 
 
 func set_active(value: bool) -> void:
@@ -19,5 +19,7 @@ func set_active(value: bool) -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	if area is Hurtbox:
+		print("area entered: ", area.name)
 		area.take_damage(1)
 		Hit.emit()
+	

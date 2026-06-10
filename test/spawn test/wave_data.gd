@@ -3,7 +3,7 @@ extends RefCounted
 
 
 var enemies : Array = [] #ประเภทและจำนวน
-var allowed_zones : Array[String] = [] #ห้ามให้โซนไหนเกิด "โดยใช้ชื่อ node zone นั้นๆ"
+var allowed_zones : Array[StringName] = [] #ห้ามให้โซนไหนเกิด "โดยใช้ชื่อ node zone นั้นๆ"
 
 var simultaneous_max : int #เกิดซ้ำได้กี่ตัว
 var limit_map : int #จำกัดจำนวนในแมพ

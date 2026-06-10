@@ -2,18 +2,23 @@
 
 [ext_resource type="Script" uid="uid://ds1qmo0swsjug" path="res://Game/Character/Enemy/SpearEnemy/spear_enemy.gd" id="1_c61ha"]
 [ext_resource type="Script" uid="uid://drjf2pdmxhrje" path="res://test/hurtbox.gd" id="2_8um8t"]
+[ext_resource type="Script" uid="uid://ey8n7lk18fg6" path="res://test/hitbox.gd" id="3_gre4n"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c61ha"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gre4n"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_n773p"]
+size = Vector2(34, 28)
 
 [node name="Spear_enemy" type="CharacterBody2D" unique_id=1531514207]
 collision_layer = 4
 script = ExtResource("1_c61ha")
 bounce_force = 200.0
 slide_force = 20.0
+Speed = 300.0
 Nor_Gravity = 400.0
-reaction = 0.5
+reaction = 0.4
 stamina_Max = 5.0
 stun_time = 5.0
 
@@ -36,5 +41,21 @@ metadata/_custom_type_script = "uid://drjf2pdmxhrje"
 position = Vector2(10, 10)
 shape = SubResource("RectangleShape2D_gre4n")
 debug_color = Color(0.16193393, 0.6999999, 0, 0.42)
+
+[node name="StatesLabel" type="Label" parent="." unique_id=1150958499]
+offset_left = -9.0
+offset_top = -25.0
+offset_right = 26.0
+offset_bottom = -2.0
+
+[node name="Hitbox" type="Area2D" parent="." unique_id=147946116]
+collision_layer = 32
+collision_mask = 16
+script = ExtResource("3_gre4n")
+metadata/_custom_type_script = "uid://ey8n7lk18fg6"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1789867737]
+position = Vector2(10, 10)
+shape = SubResource("RectangleShape2D_n773p")
 
 [connection signal="die" from="Hurtbox" to="." method="_on_hurtbox_die"]

@@ -11,7 +11,7 @@ size = Vector2(16, 20)
 size = Vector2(23, 22)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_4of1l"]
-size = Vector2(14, 19)
+size = Vector2(17, 20)
 
 [node name="Player" type="CharacterBody2D" unique_id=1265944421]
 collision_layer = 2
@@ -33,15 +33,17 @@ shape = SubResource("RectangleShape2D_7ydq3")
 debug_color = Color(0.16385394, 0.2816822, 1, 0.42)
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=2069716515]
+z_index = 9
 collision_layer = 16
 collision_mask = 32
 script = ExtResource("3_7ydq3")
 metadata/_custom_type_script = "uid://drjf2pdmxhrje"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=611199601]
-position = Vector2(8, 10.5)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=942581149]
+position = Vector2(7.5, 10)
 shape = SubResource("RectangleShape2D_4of1l")
-debug_color = Color(0.6999999, 0.18404362, 0.20323005, 0.42)
+debug_color = Color(0.6999999, 0.332602, 0.23770857, 0.42)
 
 [connection signal="Hit" from="Hitbox" to="." method="_on_hitbox_hit"]
 [connection signal="die" from="Hurtbox" to="." method="_on_hurtbox_die"]
+[connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]
