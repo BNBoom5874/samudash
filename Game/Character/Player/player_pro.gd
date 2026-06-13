@@ -1,27 +1,47 @@
 extends CharacterBody2D
-#class_name Player
+class_name Player
 
 #region Variables
 @onready var hitbox : Hitbox = $Hitbox
 @onready var hurtbox : Hurtbox = $Hurtbox
+@onready var States :StatesPlayer = $Statemachine
 
-enum States { IDLE, DASH, HIT_SLIDE, COOLDOWN, DEAD }
-var states = States.IDLE
+#State machine
+var previous_state = null
+var current_state = null
 
-const CARDINAL_SNAP    = 40.0
-const DIAGONAL_DOT_MIN = 0.85
-const ZONE_DOT_MIN     = 0.6
 
-const DASH_DISTANCE : float = 100.0
-const Gravity       : float = 600.0
-const Cooldown      : float = 0.45
-const Time_Dash     : float = 0.25
-const PLAYER_RADIUS : float = 10.0
+# Lock dash
+const CARDINAL_SNAP    : float  = 40.0
+const DIAGONAL_DOT_MIN : float= 0.85
+const ZONE_DOT_MIN     : float   = 0.6
 
+#สำหรับป้องกันตัวทะลุ
+const PLAYER_RADIUS : float = 10.0 #Shape
+
+
+#movement
+const DASH_DISTANCE : float = 80.0
+const Gravity : float = 600.0
+const Dodge_power : float = 450.0
+
+#Direction
 var input_dir  : Vector2 = Vector2.ZERO
+
+
+
+@export_group("Time")
+@export var Cooldown : float = 0.3
+@export var Time_Dash : float = 0.22
+@export var time_Dodge : float = 0.15
+
+
 var timer_dash : float   = 0.0
 var timercool  : float   = 0.0
 
+
+
+#key input
 var keyUp     : bool = false
 var keyUpL    : bool = false
 var keyUpR    : bool = false
@@ -32,61 +52,41 @@ var keyDownL  : bool = false
 var keyDownR  : bool = false
 var keyDown   : bool = false
 
-var _hit : bool = false
 
 #endregion
+
 
 #region Loop
 
 func _ready() -> void:
 	add_to_group("player")
-	set_hurtbox(false)
+	open_hurtbox(true)
 	hitbox.is_active = false
+	
+	for state in States.get_children():
+		state.States = States
+		state.player = self
+		previous_state = States.Idle
+		current_state = States.Idle
+
 
 func _physics_process(delta: float) -> void:
+	#time
 	set_Time(delta)
+	
+	#input
 	get_input()
-
-	if states == States.IDLE or states == States.HIT_SLIDE or (states == States.COOLDOWN and timercool <= 0.0):
-		handle_Dash_Input()
-
-	match states:
-		States.IDLE:
-			apply_gravity(delta)
-			velocity.x = lerp(velocity.x, 0.0, 50 * delta)
-			
-		States.DASH:
-			set_hurtbox(true)
-			hitbox.is_active = true
-			if timer_dash <= 0:
-				if _hit:
-					change_state(States.IDLE)
-					return
-				timercool = Cooldown
-				change_state(States.COOLDOWN)
-
-		States.COOLDOWN:
-			set_hurtbox(false)
-			hitbox.is_active = false
-			
-			velocity.x = move_toward(velocity.x, 0, 20)
-			apply_gravity(delta)
-			if timercool <= 0.0:
-				states = States.IDLE
-		
-		States.HIT_SLIDE:
-			set_hurtbox(false)
-			hitbox.is_active = false
-			
-			apply_gravity(delta)
-			velocity.x = move_toward(velocity.x, 0, 2)
-			
-			if velocity.length() < 10.0 or is_on_floor():
-				states = States.IDLE
-
+	handle_Dash_Input()
+	
+	#states Updat
+	current_state.Update(delta)
+	
 	move_and_slide()
-	print("after move_and_slide: ", global_position)
 
+#endregion
+
+
+#region รับ inputต่างๆ รวมถึงทิศทางด้วย
 func get_input() -> void:
 	keyUp     = Input.is_action_just_pressed("up")
 	keyUpL    = Input.is_action_just_pressed("up_left")
@@ -97,39 +97,9 @@ func get_input() -> void:
 	keyDownL  = Input.is_action_just_pressed("down_left")
 	keyDownR  = Input.is_action_just_pressed("down_right")
 	keyDown   = Input.is_action_just_pressed("down")
-
-#endregion
-
-#region Helpers
-
-func apply_gravity(delta) -> void:
-	if not is_on_floor():
-		velocity.y += Gravity * delta
-
-func set_Time(delta) -> void:
-	if timer_dash > 0:
-		timer_dash -= delta
-		hitbox.is_active = true
-	else :
-		hitbox.is_active = false
 	
-	if timercool  > 0: timercool  -= delta
 
-func get_center_of(node: Node) -> Vector2:
-	var target_hurtbox = node.get_node_or_null("Hurtbox")
-	if target_hurtbox:
-		return target_hurtbox.global_position
-	return node.global_position
 
-func set_hurtbox(value :bool) -> void:
-	if not is_instance_valid(hurtbox):
-		return
-	
-	hurtbox.is_invisible = value
-
-#endregion
-
-#region Dash
 
 func handle_Dash_Input() -> void:
 	if keyUp:      input_dir = Vector2(0, -1)
@@ -142,11 +112,40 @@ func handle_Dash_Input() -> void:
 	elif keyDownR: input_dir = Vector2( 1,  1).normalized()
 	else:          input_dir = Vector2.ZERO
 
-	if input_dir != Vector2.ZERO:
-		if is_on_floor() and input_dir.y > 0:
-			return
-		start_dash()
-		change_state(States.DASH)
+
+
+
+#endregion
+
+#region Helpers
+
+func apply_gravity(delta) -> void:
+	if not is_on_floor():
+		velocity.y += Gravity * delta
+
+
+func set_Time(delta) -> void:
+	if timer_dash > 0:
+		timer_dash -= delta
+	
+	if timercool  > 0: timercool  -= delta
+
+
+func get_center_of(node: Node) -> Vector2:
+	var target_hurtbox = node.get_node_or_null("Hurtbox")
+	if target_hurtbox:
+		return target_hurtbox.global_position
+	return node.global_position
+
+func open_hurtbox(value :bool) -> void:
+	if not is_instance_valid(hurtbox):
+		return
+	
+	hurtbox.is_active = value
+
+#endregion
+
+#region Dash
 
 
 func start_dash() -> void:
@@ -196,8 +195,8 @@ func can_lock_on(enemy: Node, dir: Vector2) -> bool:
 
 	return dir.normalized().dot(diff.normalized()) >= DIAGONAL_DOT_MIN
 
+
 func do_lock_dash(target: Node) -> void:
-	velocity = Vector2.ZERO
 	var enemy_center = get_center_of(target)
 	var diff = enemy_center - global_position
 
@@ -214,90 +213,62 @@ func do_lock_dash(target: Node) -> void:
 
 
 func do_normal_dash(dir: Vector2) -> void:
-	var motion = dir.normalized() * DASH_DISTANCE
-	var collision = move_and_collide(motion, true)
-	if collision:
-		global_position += collision.get_travel()
-		velocity = dir.bounce(collision.get_normal()) * 350.0
+	var far_pos = global_position + dir.normalized() * DASH_DISTANCE
+	var result  = get_safe_warp_result(global_position, far_pos)
+	global_position = result.position
+	if result.hit :
+		pass
 	else:
-		global_position += motion
 		velocity = dir.normalized() * 150.0
-	timercool = Cooldown
+	
+	timer_dash = Time_Dash
 
+
+##ตรวจจับกำแพง
 func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
-	var space = get_world_2d().direct_space_state
+	var space = get_world_2d().direct_space_state #หัวหน้าสั่งงาน
 
 	var shape = CircleShape2D.new()
 	shape.radius = PLAYER_RADIUS
 
-	# เช็คที่ปลายทางก่อนว่ามี collision ไหม
-	var test = PhysicsShapeQueryParameters2D.new()
-	test.shape = shape
-	test.transform = Transform2D(0.0, to)
-	test.collision_mask = ~0
-	test.exclude = [self]
-	var hits = space.intersect_shape(test)
-	print("hits at destination: ", hits)
-
-	var query = PhysicsShapeQueryParameters2D.new()
+	var query = PhysicsShapeQueryParameters2D.new() #ตรวจจับด้วย Shape
 	query.shape = shape
 	query.transform = Transform2D(0.0, from)
 	query.motion = to - from
 	query.exclude = [self]
-	query.collision_mask = ~0
-	query.margin = 4.0
+	query.collision_mask = 1
 
-	var result = space.cast_motion(query)
-	print("cast result: ", result)
+	var result = space.cast_motion(query) #จับเส้นทางในอนาคตของ shape ที่พุ่งไป 
 
 	if result[0] < 1.0:
-		var safe_t = max(result[0] - 0.01, 0.0)
-		var safe_pos = from + (to - from) * safe_t
+		var safe_pos = from + (to - from) * result[0]
 		var ray_query = PhysicsRayQueryParameters2D.create(from, to)
 		ray_query.exclude = [self]
-		ray_query.collision_mask = ~0
+		ray_query.collision_mask = 1
 		var ray_result = space.intersect_ray(ray_query)
 		var normal = ray_result.get("normal", Vector2.ZERO)
 		return {"position": safe_pos, "hit": true, "normal": normal}
 
 	return {"position": to, "hit": false, "normal": Vector2.ZERO}
-	
+
 #endregion
+
 
 #region State tool
 
-func change_state(new_state: States) -> void:
-	#State ออก
-	match states:
-		States.IDLE:
-			pass
-		States.DASH:
-			pass
-		States.HIT_SLIDE:
-			pass
-		States.COOLDOWN:
-			pass
-		States.DEAD:
-			pass
+func change_state(new_state) -> void: 
+	if current_state == States.Dead: return
+	if new_state != null:
+		previous_state = current_state
+		current_state = new_state
 		
-	states = new_state
-	
-	#state เข้า
-	match states:
-		States.IDLE:
-			pass
-		States.DASH:
-			timer_dash = 0
-			timer_dash = Time_Dash
-			
-		States.HIT_SLIDE:
-			pass
-		States.COOLDOWN:
-			pass
-		States.DEAD:
-			pass
+		previous_state.Exit_State()
+		current_state.Enter_State()
 		
-
+		print_rich("[color=orange]Change "+
+		"[b]"+ previous_state.Name +"[/b]"+ 
+		" to: " + "[b][i]"+ current_state.Name +"[/i][/b][/color]")
+		
 
 
 #endregion
@@ -307,18 +278,15 @@ func change_state(new_state: States) -> void:
 
 func _on_hurtbox_die() -> void:
 	print("โดนนนนน")
-	set_hurtbox(true)
+	open_hurtbox(false)
 	queue_free()
+	remove_from_group("player")
 
 func _on_hitbox_hit() -> void:
-	_hit = true
 	timercool = 0
+	if current_state == States.Dash:
+		States.Dash.is_hit_enemy = true
 	
-	
-	velocity = input_dir.normalized() * 650.0
-	  # ลอยขึ้นนิดนึงให้รู้สึก
-	
-	states = States.HIT_SLIDE
 
 
 func _on_hurtbox_hurt() -> void:

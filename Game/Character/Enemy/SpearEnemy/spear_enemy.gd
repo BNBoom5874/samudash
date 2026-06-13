@@ -72,6 +72,7 @@ func handle_States(delta: float) -> void:
 		States.DEAD:
 			apply_gravity(delta)
 			velocity.x = lerp(velocity.x, 0.0, friction * delta)
+			
 	
 
 
@@ -189,6 +190,8 @@ func change_State(new_state: States) -> void:
 		
 		States.CHASE:
 			hitbox.is_active = false
+			if target == null:
+				return
 			var dir = sign(target.global_position.x - global_position.x)
 			facing_dir = dir
 		
@@ -234,4 +237,5 @@ func _on_hurtbox_die() -> void:
 	if current_state != States.DEAD:
 		change_State(States.DEAD)
 	remove_from_group("enemy")
+	
 	print("ตุ๊ยดุ่ย")

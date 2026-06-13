@@ -16,7 +16,7 @@ collision_layer = 4
 script = ExtResource("1_c61ha")
 bounce_force = 200.0
 slide_force = 20.0
-Speed = 300.0
+Speed = 250.0
 Nor_Gravity = 400.0
 reaction = 0.4
 stamina_Max = 5.0
@@ -43,6 +43,7 @@ shape = SubResource("RectangleShape2D_gre4n")
 debug_color = Color(0.16193393, 0.6999999, 0, 0.42)
 
 [node name="StatesLabel" type="Label" parent="." unique_id=1150958499]
+visible = false
 offset_left = -9.0
 offset_top = -25.0
 offset_right = 26.0

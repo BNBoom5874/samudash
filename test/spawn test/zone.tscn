@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://eytv6ehst4dq" path="res://test/spawn test/zone.gd" id="1_mqs5f"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_iec3j"]
-radius = 97.5141
+radius = 66.85058
 
 [node name="Zone" type="Area2D" unique_id=1728175236]
 collision_layer = 0

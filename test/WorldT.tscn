@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cggqi20lmnhkn"]
 
 [ext_resource type="PackedScene" uid="uid://b1mg6hru5saio" path="res://Ui/controller.tscn" id="2_8n65e"]
-[ext_resource type="PackedScene" uid="uid://bkh7ipi0ebjal" path="res://Game/Character/player.tscn" id="2_vt5b8"]
+[ext_resource type="PackedScene" uid="uid://bkh7ipi0ebjal" path="res://Game/Character/Player/player.tscn" id="2_vt5b8"]
 [ext_resource type="Script" uid="uid://dwwsn3r4jcdhd" path="res://test/Score test/score_test.gd" id="3_gtwsp"]
 [ext_resource type="Script" uid="uid://dtlimp7qnqhc7" path="res://test/spawn test/wave_manager.gd" id="4_1fco8"]
 [ext_resource type="Script" uid="uid://bqu2owo77d2im" path="res://test/spawn test/spawn_controller.gd" id="5_gtwsp"]
@@ -71,10 +71,6 @@ shape = SubResource("RectangleShape2D_luodq")
 [node name="Player" parent="." unique_id=1265944421 instance=ExtResource("2_vt5b8")]
 position = Vector2(231, 354)
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
-position = Vector2(210, 212)
-zoom = Vector2(1.46, 1.46)
-
 [node name="controller" parent="." unique_id=851171353 instance=ExtResource("2_8n65e")]
 
 [node name="Label" type="Label" parent="controller" unique_id=1185428097 node_paths=PackedStringArray("wave_manager")]
@@ -110,23 +106,28 @@ one_shot = true
 [node name="Zone" parent="spawn/Zones" unique_id=1728175236 instance=ExtResource("6_gtwsp")]
 position = Vector2(131, 458)
 
-[node name="Zone23" parent="spawn/Zones" unique_id=184311080 instance=ExtResource("6_gtwsp")]
-position = Vector2(250, 463)
+[node name="Zone2" parent="spawn/Zones" unique_id=184311080 instance=ExtResource("6_gtwsp")]
+position = Vector2(302, 469)
 
 [node name="Zone3" parent="spawn/Zones" unique_id=1099177407 instance=ExtResource("6_gtwsp")]
-position = Vector2(423, 437)
+position = Vector2(448, 463)
 
 [node name="Zone4" parent="spawn/Zones" unique_id=511901549 instance=ExtResource("6_gtwsp")]
-position = Vector2(411, 254)
+position = Vector2(437, 321)
 
 [node name="Zone5" parent="spawn/Zones" unique_id=1901304291 instance=ExtResource("6_gtwsp")]
-position = Vector2(415, 151)
+position = Vector2(439, 167)
 
 [node name="Zone6" parent="spawn/Zones" unique_id=1446538992 instance=ExtResource("6_gtwsp")]
-position = Vector2(278, 109)
+position = Vector2(297, 145)
 
 [node name="Zone7" parent="spawn/Zones" unique_id=191177790 instance=ExtResource("6_gtwsp")]
-position = Vector2(157, 123)
+position = Vector2(156, 153)
 
 [node name="Zone8" parent="spawn/Zones" unique_id=146534138 instance=ExtResource("6_gtwsp")]
-position = Vector2(148, 280)
+position = Vector2(158, 311)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
+position = Vector2(231, 241)
+zoom = Vector2(1.4, 1.4)
+position_smoothing_enabled = true

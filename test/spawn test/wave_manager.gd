@@ -36,12 +36,12 @@ func _next_wave() -> void:
 
 func setup_waves() -> void:
 	var wave1 = WaveData.new()
-	wave1.enemies = [{"scene":preload("uid://dr1qvvlklshwt"), "count":10}]
+	wave1.enemies = [{"scene":preload("uid://dr1qvvlklshwt"), "count":0}]
 	
 	wave1.simultaneous_max = 1
 	wave1.simultaneous_chance = 0.7
-	wave1.limit_map = 5
-	wave1.spawn_delay = 1.5
+	wave1.limit_map = 10
+	wave1.spawn_delay = 0.5
 	wave1.allowed_zones = ["Zone","Zone2","Zone3"] as Array[StringName]
 	
 	waves = [wave1]
@@ -53,6 +53,7 @@ func on_enemy_died() -> void:
 	current_kills += 1
 
 	score += 1
+	
 	
 
 	if current_kills >= waves[current_index].total_count():

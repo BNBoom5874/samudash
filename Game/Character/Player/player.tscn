@@ -1,0 +1,85 @@
+[gd_scene format=3 uid="uid://bkh7ipi0ebjal"]
+
+[ext_resource type="Script" uid="uid://doun1k6cgprhu" path="res://Game/Character/Player/player_pro.gd" id="1_e2iw5"]
+[ext_resource type="PackedScene" uid="uid://cuclrlai6padd" path="res://hitbox.tscn" id="2_dll3c"]
+[ext_resource type="Script" uid="uid://drjf2pdmxhrje" path="res://test/hurtbox.gd" id="3_7ydq3"]
+[ext_resource type="Script" uid="uid://nwba4pt2n86y" path="res://Game/Character/Player/State/States.gd" id="4_sf5cx"]
+[ext_resource type="Script" uid="uid://dolnyo5pc2ntk" path="res://Game/Character/Player/State/idle.gd" id="5_e2iw5"]
+[ext_resource type="Script" uid="uid://dludtalg7l741" path="res://Game/Character/Player/State/dash.gd" id="6_3fw50"]
+[ext_resource type="Script" uid="uid://bx7s3r48bloyn" path="res://Game/Character/Player/State/dodge.gd" id="6_6nr6o"]
+[ext_resource type="Script" uid="uid://rouat7n8r3aw" path="res://Game/Character/Player/State/jump.gd" id="6_ce81c"]
+[ext_resource type="Script" uid="uid://51fw8850b6q2" path="res://Game/Character/Player/State/stun.gd" id="7_bdrnp"]
+[ext_resource type="Script" uid="uid://cb2jhjsk4o78m" path="res://Game/Character/Player/State/dead.gd" id="10_86v7a"]
+[ext_resource type="Script" uid="uid://doue0j1ky2o5r" path="res://Game/Character/Player/State/fall.gd" id="11_6gvv7"]
+[ext_resource type="Script" uid="uid://v6n76lk6l0ky" path="res://Game/Character/Player/on_wall.gd" id="12_b05mp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_8hnaa"]
+size = Vector2(16, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7ydq3"]
+size = Vector2(42, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4of1l"]
+size = Vector2(17, 20)
+
+[node name="Player" type="CharacterBody2D" unique_id=1265944421]
+collision_layer = 2
+script = ExtResource("1_e2iw5")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1931133209]
+offset_right = 16.0
+offset_bottom = 20.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=141373887]
+position = Vector2(8, 10)
+shape = SubResource("RectangleShape2D_8hnaa")
+
+[node name="Hitbox" parent="." unique_id=984924912 instance=ExtResource("2_dll3c")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox" unique_id=1567859617]
+position = Vector2(8, 11)
+shape = SubResource("RectangleShape2D_7ydq3")
+debug_color = Color(0.16385394, 0.2816822, 1, 0.42)
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=2069716515]
+z_index = 9
+collision_layer = 16
+collision_mask = 32
+script = ExtResource("3_7ydq3")
+metadata/_custom_type_script = "uid://drjf2pdmxhrje"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=942581149]
+position = Vector2(7.5, 10)
+shape = SubResource("RectangleShape2D_4of1l")
+debug_color = Color(0.6999999, 0.332602, 0.23770857, 0.42)
+
+[node name="Statemachine" type="Node" parent="." unique_id=127461516]
+script = ExtResource("4_sf5cx")
+
+[node name="Idle" type="Node" parent="Statemachine" unique_id=1727607576]
+script = ExtResource("5_e2iw5")
+
+[node name="Jump" type="Node" parent="Statemachine" unique_id=1617906684]
+script = ExtResource("6_ce81c")
+
+[node name="Stun" type="Node" parent="Statemachine" unique_id=878528727]
+script = ExtResource("7_bdrnp")
+
+[node name="Dash" type="Node" parent="Statemachine" unique_id=365876314]
+script = ExtResource("6_3fw50")
+
+[node name="Dodge" type="Node" parent="Statemachine" unique_id=1944638039]
+script = ExtResource("6_6nr6o")
+
+[node name="Dead" type="Node" parent="Statemachine" unique_id=1468153648]
+script = ExtResource("10_86v7a")
+
+[node name="Fall" type="Node" parent="Statemachine" unique_id=1036783902]
+script = ExtResource("11_6gvv7")
+
+[node name="On_wall" type="Node" parent="Statemachine" unique_id=209151395]
+script = ExtResource("12_b05mp")
+
+[connection signal="Hit" from="Hitbox" to="." method="_on_hitbox_hit"]
+[connection signal="die" from="Hurtbox" to="." method="_on_hurtbox_die"]
+[connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]

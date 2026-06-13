@@ -107,5 +107,9 @@ func spawn(scene: PackedScene) -> Node:
 	return enemy
 
 
-func _on_body_entered(_body): body_count += 1
-func _on_body_exited(_body): body_count -= 1
+func _on_body_entered(_body):
+	body_count = max(0, body_count + 1)
+	
+func _on_body_exited(_body):
+	body_count = max(0, body_count - 1)
+	
