@@ -12,7 +12,7 @@ config_version=5
 
 config/name="samudash"
 run/main_scene="uid://cggqi20lmnhkn"
-config/features=PackedStringArray("4.6", "Mobile")
+config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
 
 [display]
@@ -23,6 +23,7 @@ window/size/mode=3
 window/size/resizable=false
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/handheld/orientation=4
 
 [file_customization]
 
@@ -30,6 +31,12 @@ folder_colors={
 "res://Game/": "red",
 "res://Ui/": "green",
 "res://test/": "yellow"
+}
+
+[importer_defaults]
+
+animation_library={
+&"animation/fps": 60.0
 }
 
 [input]

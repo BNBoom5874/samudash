@@ -8,7 +8,10 @@
 [ext_resource type="PackedScene" uid="uid://gwhdjnmbmf80" path="res://test/spawn test/zone.tscn" id="6_gtwsp"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_luodq"]
-size = Vector2(738.125, 49.374996)
+size = Vector2(731.56256, 49.76562)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gtwsp"]
+size = Vector2(120, 500.0003)
 
 [sub_resource type="SystemFont" id="SystemFont_gtwsp"]
 
@@ -49,24 +52,24 @@ pivot_offset_ratio = Vector2(250, 250)
 color = Color(0.4437306, 0.44373065, 0.44373062, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1010246845]
-position = Vector2(-102.5, 261.25)
-scale = Vector2(0.99999994, 0.99999994)
+position = Vector2(-99.21878, 258.67184)
+scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_luodq")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="StaticBody2D" unique_id=1525259635]
-position = Vector2(-93.75, -290.00003)
-scale = Vector2(0.99999994, 0.99999994)
+position = Vector2(-93.75, -292.38278)
+scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("RectangleShape2D_luodq")
 
-[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=1475223197]
-position = Vector2(165, 2.5000072)
-rotation = 1.5707964
-shape = SubResource("RectangleShape2D_luodq")
+[node name="CollisionShape2D3" type="CollisionShape2D" parent="StaticBody2D" unique_id=346880108]
+position = Vector2(-395, -17.499992)
+scale = Vector2(0.9999995, 0.9999995)
+shape = SubResource("RectangleShape2D_gtwsp")
 
-[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D" unique_id=882285728]
-position = Vector2(-362.5, -11.249996)
-rotation = 1.5707964
-shape = SubResource("RectangleShape2D_luodq")
+[node name="CollisionShape2D4" type="CollisionShape2D" parent="StaticBody2D" unique_id=1406900577]
+position = Vector2(204.99997, -17.50003)
+scale = Vector2(0.99999917, 0.99999917)
+shape = SubResource("RectangleShape2D_gtwsp")
 
 [node name="Player" parent="." unique_id=1265944421 instance=ExtResource("2_vt5b8")]
 position = Vector2(231, 354)
@@ -128,6 +131,6 @@ position = Vector2(156, 153)
 position = Vector2(158, 311)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
-position = Vector2(231, 241)
+position = Vector2(214, 220)
 zoom = Vector2(1.4, 1.4)
 position_smoothing_enabled = true

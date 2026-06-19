@@ -80,6 +80,16 @@ script = ExtResource("11_6gvv7")
 [node name="On_wall" type="Node" parent="Statemachine" unique_id=209151395]
 script = ExtResource("12_b05mp")
 
+[node name="rayLeft" type="RayCast2D" parent="." unique_id=623317074]
+position = Vector2(7.0000005, 10)
+rotation = 1.571955
+scale = Vector2(1.2045676, 0.19065194)
+
+[node name="rayRight" type="RayCast2D" parent="." unique_id=1428827794]
+position = Vector2(7, 10)
+rotation = -1.5796525
+scale = Vector2(0.9894421, 0.23483461)
+
 [connection signal="Hit" from="Hitbox" to="." method="_on_hitbox_hit"]
 [connection signal="die" from="Hurtbox" to="." method="_on_hurtbox_die"]
 [connection signal="hurt" from="Hurtbox" to="." method="_on_hurtbox_hurt"]

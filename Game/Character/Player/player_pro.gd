@@ -5,10 +5,18 @@ class_name Player
 @onready var hitbox : Hitbox = $Hitbox
 @onready var hurtbox : Hurtbox = $Hurtbox
 @onready var States :StatesPlayer = $Statemachine
+@onready var collider : CollisionShape2D = $CollisionShape2D
+@onready var rayright : RayCast2D = $rayRight
+@onready var rayleft : RayCast2D = $rayLeft
+
 
 #State machine
 var previous_state = null
 var current_state = null
+
+var on_floor: bool = false
+var on_wall : bool = false
+var on_air : bool = false
 
 
 # Lock dash
@@ -21,24 +29,24 @@ const PLAYER_RADIUS : float = 10.0 #Shape
 
 
 #movement
-const DASH_DISTANCE : float = 80.0
+const DASH_DISTANCE : float = 100.0
 const Gravity : float = 600.0
-const Dodge_power : float = 450.0
+const Dodge_power : float = 500.0
+const Dash_Speed : float = 100.0
+const friction : float = 1200.0
 
 #Direction
 var input_dir  : Vector2 = Vector2.ZERO
-
-
+var dash_dir : Vector2 = Vector2.ZERO
+var wall_dir : int = 0 
+var dodge_dir : Vector2 = Vector2.ZERO
 
 @export_group("Time")
 @export var Cooldown : float = 0.3
 @export var Time_Dash : float = 0.22
 @export var time_Dodge : float = 0.15
-
-
 var timer_dash : float   = 0.0
 var timercool  : float   = 0.0
-
 
 
 #key input
@@ -51,6 +59,8 @@ var keyCenter : bool = false
 var keyDownL  : bool = false
 var keyDownR  : bool = false
 var keyDown   : bool = false
+
+
 
 
 #endregion
@@ -71,13 +81,14 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	
 	#time
 	set_Time(delta)
 	
 	#input
 	get_input()
-	handle_Dash_Input()
-	
+	handle_Dir_Input()
+	handle_context()
 	#states Updat
 	current_state.Update(delta)
 	
@@ -101,7 +112,7 @@ func get_input() -> void:
 
 
 
-func handle_Dash_Input() -> void:
+func handle_Dir_Input() -> void:
 	if keyUp:      input_dir = Vector2(0, -1)
 	elif keyUpL:   input_dir = Vector2(-1, -1).normalized()
 	elif keyUpR:   input_dir = Vector2( 1, -1).normalized()
@@ -143,6 +154,66 @@ func open_hurtbox(value :bool) -> void:
 	
 	hurtbox.is_active = value
 
+func handle_context() -> void:
+	on_floor = is_on_floor()
+
+	if rayleft.is_colliding():
+		wall_dir = -1
+		on_wall = true
+		return
+	
+	elif rayright.is_colliding():
+		wall_dir = 1
+		on_wall = true
+		return
+	
+	wall_dir = 0
+	on_wall = false
+
+
+func _action_dash() -> bool:
+	if input_dir == Vector2.ZERO:
+		return false
+	if on_floor:
+		if on_wall and sign(input_dir.x) != -wall_dir:
+			dash_dir = input_dir
+			return true
+	else:
+		if on_wall and sign(input_dir.x) != -wall_dir:
+			dash_dir = input_dir
+			return true
+		else:
+			if not sign(input_dir.y) > 0:
+				return true
+			
+	
+	return false
+
+
+func _action_jump() -> bool:
+	if input_dir == Vector2.ZERO:
+		return false
+	if on_floor and input_dir == Vector2.DOWN:
+		return true
+	return false
+
+
+func _action_dodge() -> bool:
+	if input_dir == Vector2.ZERO:
+		return false
+	
+	if on_floor:
+		# wall kick — กดทิศไหนก็ได้ที่มี x component ตอนติดกำแพง
+		if on_wall and sign(input_dir.x) == wall_dir:
+			dodge_dir.x = -wall_dir
+			dodge_dir.y = -1 if sign(input_dir.y) == 1 else 0
+			return true
+		# floor bounce — เฉียงลงโดยไม่ติดกำแพง
+		if input_dir.y > 0 and sign(input_dir.x) != 0:
+			dodge_dir = Vector2(sign(input_dir.x), 0)
+			return true
+	
+	return false
 #endregion
 
 #region Dash
@@ -150,7 +221,7 @@ func open_hurtbox(value :bool) -> void:
 
 func start_dash() -> void:
 	var target = find_nearest_in_direction(input_dir)
-
+	
 	if target != null and can_lock_on(target, input_dir):
 		do_lock_dash(target)
 	else:
@@ -216,8 +287,8 @@ func do_normal_dash(dir: Vector2) -> void:
 	var far_pos = global_position + dir.normalized() * DASH_DISTANCE
 	var result  = get_safe_warp_result(global_position, far_pos)
 	global_position = result.position
-	if result.hit :
-		pass
+	if result.hit:
+		velocity = Vector2.ZERO
 	else:
 		velocity = dir.normalized() * 150.0
 	
@@ -226,10 +297,12 @@ func do_normal_dash(dir: Vector2) -> void:
 
 ##ตรวจจับกำแพง
 func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
+	
+	
 	var space = get_world_2d().direct_space_state #หัวหน้าสั่งงาน
 
-	var shape = CircleShape2D.new()
-	shape.radius = PLAYER_RADIUS
+	var shape = RectangleShape2D.new()
+	shape.size = collider.shape.size /2
 
 	var query = PhysicsShapeQueryParameters2D.new() #ตรวจจับด้วย Shape
 	query.shape = shape
@@ -237,6 +310,7 @@ func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
 	query.motion = to - from
 	query.exclude = [self]
 	query.collision_mask = 1
+	query.collide_with_bodies = true
 
 	var result = space.cast_motion(query) #จับเส้นทางในอนาคตของ shape ที่พุ่งไป 
 
@@ -248,7 +322,7 @@ func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
 		var ray_result = space.intersect_ray(ray_query)
 		var normal = ray_result.get("normal", Vector2.ZERO)
 		return {"position": safe_pos, "hit": true, "normal": normal}
-
+	
 	return {"position": to, "hit": false, "normal": Vector2.ZERO}
 
 #endregion
