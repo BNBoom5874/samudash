@@ -36,7 +36,7 @@ func _next_wave() -> void:
 
 func setup_waves() -> void:
 	var wave1 = WaveData.new()
-	wave1.enemies = [{"scene":preload("uid://dr1qvvlklshwt"), "count":0}]
+	wave1.enemies = [{"scene":preload("uid://dr1qvvlklshwt"), "count":10}]
 	
 	wave1.simultaneous_max = 1
 	wave1.simultaneous_chance = 0.7

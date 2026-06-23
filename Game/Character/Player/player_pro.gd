@@ -31,8 +31,9 @@ const PLAYER_RADIUS : float = 10.0 #Shape
 #movement
 const DASH_DISTANCE : float = 100.0
 const Gravity : float = 600.0
-const Wall_Gravity : float = 400.0
-const Dodge_power : float = 500.0
+const Wall_Gravity : float = 100.0
+
+const Dodge_power : float = 430.0
 const Jump_power : float = -300.0
 const Dash_Speed : float = 100.0
 const friction : float = 1200.0
@@ -44,7 +45,7 @@ var wall_dir : int = 0
 var dodge_dir : Vector2 = Vector2.ZERO
 
 @export_group("Time")
-@export var Cooldown : float = 0.3
+@export var Cooldown : float = 0.5
 @export var Time_Dash : float = 0.22
 @export var time_Dodge : float = 0.15
 var timer_dash : float   = 0.0
@@ -141,6 +142,8 @@ func set_Time(delta) -> void:
 	if timer_dash > 0:
 		timer_dash -= delta
 	
+	
+	
 	if timercool  > 0: timercool  -= delta
 
 
@@ -168,9 +171,9 @@ func handle_context() -> void:
 		wall_dir = 1
 		on_wall = true
 		return
-	
-	wall_dir = 0
-	on_wall = false
+	else :
+		wall_dir = 0
+		on_wall = false
 
 
 func _action_dash() -> bool:
@@ -178,6 +181,9 @@ func _action_dash() -> bool:
 	if timercool > 0: return false
 	
 	if on_floor:
+		if input_dir.x == 0 and input_dir.y == 1:
+			return false
+		
 		if on_wall and sign(input_dir.x) != wall_dir:
 			dash_dir = input_dir
 			return true
@@ -231,7 +237,7 @@ func _action_dodge() -> bool:
 			else:
 				dodge_dir.y = 0
 				return true
-			
+		
 		
 	return false
 #endregion
@@ -240,6 +246,8 @@ func _action_dodge() -> bool:
 
 
 func start_dash() -> void:
+	hurtbox.is_active = false
+	hitbox.is_active = true
 	
 	var target = find_nearest_in_direction(dash_dir)
 	

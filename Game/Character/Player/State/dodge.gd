@@ -1,25 +1,33 @@
 #DODGE
 extends player_states
 
-var is_dodge : bool = false
+
+
+
 
 func Enter_State() -> void:
-	is_dodge = false
+	
+
 	Name = "Dodge"
 	
+	player.hurtbox.is_active = false
 	player.velocity =  player.Dodge_power * player.dodge_dir
 
 
 func Exit_State() -> void:
 	pass
-
 func Update(delta) -> void:
+
 	
-	player.velocity = player.velocity.move_toward(Vector2.ZERO, 1200.0 * delta)
+	if can_action():
+		return
+	
+	
+	player.velocity = player.velocity.move_toward(Vector2.ZERO, 1000.0 * delta)
 	player.apply_gravity(delta)
 	
 	
-	if player.velocity.x < 10:
+	if abs(player.velocity.x) < 20:
 		if player.is_on_floor():
 			player.change_state(States.Idle)
 		else :
@@ -29,4 +37,17 @@ func Update(delta) -> void:
 				player.change_state(States.On_Wall)
 			
 			
-			
+
+func can_action() -> bool:
+
+
+
+	if player._action_dash():
+		player.change_state(States.Dash)
+		return true
+	
+	elif player._action_jump():
+		player.change_state(States.Jump)
+		return true
+	
+	return false

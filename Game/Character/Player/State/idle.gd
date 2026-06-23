@@ -7,8 +7,10 @@ var timer : float = 0.0
 
 
 func Enter_State() -> void:
-	is_action = false
 	Name = "Idle"
+	
+	is_action = false
+	player.hurtbox.is_active = true
 	
 
 func Exit_State() -> void:
@@ -23,7 +25,9 @@ func Update(delta : float) -> void:
 	if player.on_wall:
 		player.velocity.x = 0
 	else:
-		player.velocity.x = move_toward(player.velocity.x, 0, 20)
+		if player.on_floor:
+			player.velocity.x = move_toward(player.velocity.x, 0, 20)
+
 	
 	
 	

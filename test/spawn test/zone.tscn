@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://eytv6ehst4dq" path="res://test/spawn test/zone.gd" id="1_mqs5f"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_iec3j"]
-radius = 66.85058
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b05mp"]
+size = Vector2(100, 100)
 
 [node name="Zone" type="Area2D" unique_id=1728175236]
 collision_layer = 0
@@ -11,4 +11,4 @@ collision_mask = 6
 script = ExtResource("1_mqs5f")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=676589937]
-shape = SubResource("CircleShape2D_iec3j")
+shape = SubResource("RectangleShape2D_b05mp")

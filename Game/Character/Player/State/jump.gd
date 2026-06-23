@@ -5,6 +5,9 @@ var timer : float = 0.0
 
 func Enter_State() -> void:
 	Name = "Jump"
+	
+	player.hurtbox.is_active = true
+	
 	player.velocity.y = player.Jump_power
 
 
@@ -13,10 +16,13 @@ func Exit_State() -> void:
 
 
 func Update(delta) -> void:
-	timer -= delta
 	
 	if can_input_dir():
 		return
+	
+	player.apply_gravity(delta)
+		
+
 	
 	if player.velocity.y > 0:
 		player.change_state(States.Fall)

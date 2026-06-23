@@ -1,8 +1,11 @@
 extends player_states
 
 
+var is_action : bool = false
+
 func Enter_State() -> void:
 	Name = "On wall"
+	is_action = false
 
 func Exit_State() -> void:
 	pass
@@ -21,14 +24,17 @@ func Update(delta) -> void:
 
 
 func can_input_dir() -> bool:
-	
+	if is_action :
+		return true
 	
 	if player._action_dodge():
 		player.change_state(States.Dodge)
+		is_action = true
 		return true
 	
 	elif player._action_dash():
 		player.change_state(States.Dash)
+		is_action = true
 		return true
 	
 

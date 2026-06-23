@@ -107,28 +107,28 @@ one_shot = true
 [node name="Zones" type="Node2D" parent="spawn" unique_id=217236378]
 
 [node name="Zone" parent="spawn/Zones" unique_id=1728175236 instance=ExtResource("6_gtwsp")]
-position = Vector2(131, 458)
+position = Vector2(144, 448)
 
 [node name="Zone2" parent="spawn/Zones" unique_id=184311080 instance=ExtResource("6_gtwsp")]
-position = Vector2(302, 469)
+position = Vector2(288, 448)
 
 [node name="Zone3" parent="spawn/Zones" unique_id=1099177407 instance=ExtResource("6_gtwsp")]
-position = Vector2(448, 463)
+position = Vector2(432, 448)
 
 [node name="Zone4" parent="spawn/Zones" unique_id=511901549 instance=ExtResource("6_gtwsp")]
-position = Vector2(437, 321)
+position = Vector2(440, 288)
 
 [node name="Zone5" parent="spawn/Zones" unique_id=1901304291 instance=ExtResource("6_gtwsp")]
-position = Vector2(439, 167)
+position = Vector2(432, 144)
 
 [node name="Zone6" parent="spawn/Zones" unique_id=1446538992 instance=ExtResource("6_gtwsp")]
-position = Vector2(297, 145)
+position = Vector2(280, 144)
 
 [node name="Zone7" parent="spawn/Zones" unique_id=191177790 instance=ExtResource("6_gtwsp")]
-position = Vector2(156, 153)
+position = Vector2(144, 144)
 
 [node name="Zone8" parent="spawn/Zones" unique_id=146534138 instance=ExtResource("6_gtwsp")]
-position = Vector2(158, 311)
+position = Vector2(144, 288)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2015984435]
 position = Vector2(214, 220)

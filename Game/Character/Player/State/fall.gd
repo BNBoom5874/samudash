@@ -4,6 +4,7 @@ extends player_states
 
 func Enter_State() -> void:
 	Name = "Fall"
+	player.hurtbox.is_active = true
 	
 
 func Exit_State() -> void:
@@ -19,7 +20,7 @@ func Update(delta) -> void:
 	
 	if player.is_on_floor():
 		player.change_state(States.Idle)
-		
+		return
 	else:
 		if player.on_wall:
 			player.change_state(States.On_Wall)
