@@ -12,8 +12,6 @@ var is_active: bool = true : set = set_active
 
 
 
-func _physics_process(delta: float) -> void:
-	pass
 
 func set_active(value: bool) -> void:
 	for child in get_children():

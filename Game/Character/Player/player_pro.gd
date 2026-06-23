@@ -31,7 +31,9 @@ const PLAYER_RADIUS : float = 10.0 #Shape
 #movement
 const DASH_DISTANCE : float = 100.0
 const Gravity : float = 600.0
+const Wall_Gravity : float = 400.0
 const Dodge_power : float = 500.0
+const Jump_power : float = -300.0
 const Dash_Speed : float = 100.0
 const friction : float = 1200.0
 
@@ -130,9 +132,9 @@ func handle_Dir_Input() -> void:
 
 #region Helpers
 
-func apply_gravity(delta) -> void:
+func apply_gravity(delta, gravity : float = Gravity) -> void:
 	if not is_on_floor():
-		velocity.y += Gravity * delta
+		velocity.y += gravity * delta
 
 
 func set_Time(delta) -> void:
@@ -172,21 +174,26 @@ func handle_context() -> void:
 
 
 func _action_dash() -> bool:
-	if input_dir == Vector2.ZERO:
-		return false
+	if input_dir == Vector2.ZERO: return false
+	if timercool > 0: return false
+	
 	if on_floor:
-		if on_wall and sign(input_dir.x) != -wall_dir:
+		if on_wall and sign(input_dir.x) != wall_dir:
 			dash_dir = input_dir
 			return true
-	else:
-		if on_wall and sign(input_dir.x) != -wall_dir:
-			dash_dir = input_dir
-			return true
+			
 		else:
 			if not sign(input_dir.y) > 0:
+				dash_dir = input_dir
 				return true
+	else:
+		if on_wall and sign(input_dir.x) != wall_dir:
+			dash_dir = input_dir
+			return true
+		else :
+			dash_dir = input_dir
+			return true
 			
-	
 	return false
 
 
@@ -212,7 +219,20 @@ func _action_dodge() -> bool:
 		if input_dir.y > 0 and sign(input_dir.x) != 0:
 			dodge_dir = Vector2(sign(input_dir.x), 0)
 			return true
-	
+	else :
+		if on_wall and sign(input_dir.x) == wall_dir:
+			dodge_dir.x = -wall_dir
+			if sign(input_dir.y) == 1:
+				dodge_dir.y = -1
+				return true
+			elif sign(input_dir.y) == -1:
+				dodge_dir.y = 1
+				return true
+			else:
+				dodge_dir.y = 0
+				return true
+			
+		
 	return false
 #endregion
 
@@ -220,14 +240,15 @@ func _action_dodge() -> bool:
 
 
 func start_dash() -> void:
-	var target = find_nearest_in_direction(input_dir)
 	
-	if target != null and can_lock_on(target, input_dir):
+	var target = find_nearest_in_direction(dash_dir)
+	
+	if target != null and can_lock_on(target, dash_dir):
 		do_lock_dash(target)
 	else:
-		do_normal_dash(input_dir)
+		do_normal_dash(dash_dir)
 
-
+##หาศัตรูที่ใกล้ที่สุดในทิศที่กด
 func find_nearest_in_direction(dir: Vector2) -> Node:
 	var enemies = get_tree().get_nodes_in_group("enemy")
 	var nearest: Node = null
@@ -248,7 +269,7 @@ func find_nearest_in_direction(dir: Vector2) -> Node:
 
 	return nearest
 
-
+##ตรวจcollision โดน free รึยัง
 func is_valid_target(enemy: Node) -> bool:
 	if not is_instance_valid(enemy): return false
 	return enemy.get_node_or_null("Hurtbox") != null
@@ -267,63 +288,53 @@ func can_lock_on(enemy: Node, dir: Vector2) -> bool:
 	return dir.normalized().dot(diff.normalized()) >= DIAGONAL_DOT_MIN
 
 
+func do_normal_dash(dir: Vector2) -> void:
+	var result = get_safe_dash_position(dir, DASH_DISTANCE)
+	global_position = result.position
+	velocity = Vector2.ZERO if result.hit else dir.normalized() * 150.0
+	timer_dash = Time_Dash
+
+
 func do_lock_dash(target: Node) -> void:
 	var enemy_center = get_center_of(target)
 	var diff = enemy_center - global_position
-
+	
 	if diff.length() > DASH_DISTANCE:
 		do_normal_dash(input_dir)
 		return
 
-	var result = get_safe_warp_result(global_position, enemy_center)
-	global_position = result.position
-	timer_dash = Time_Dash
+	# dash ไปหาศัตรู แต่หยุดก่อนถึง (ห่าง PLAYER_RADIUS)
+	var dir = diff.normalized()
+	var stop_dist = max(diff.length() - PLAYER_RADIUS, 0.0)
 	
-	# แรงพุ่งเหลือทิศเดิม
-	velocity = input_dir.normalized() * 150.0
-
-
-func do_normal_dash(dir: Vector2) -> void:
-	var far_pos = global_position + dir.normalized() * DASH_DISTANCE
-	var result  = get_safe_warp_result(global_position, far_pos)
+	var result = get_safe_dash_position(dir, stop_dist)
 	global_position = result.position
-	if result.hit:
-		velocity = Vector2.ZERO
-	else:
-		velocity = dir.normalized() * 150.0
-	
+	velocity = dir * 150.0
 	timer_dash = Time_Dash
-
 
 ##ตรวจจับกำแพง
-func get_safe_warp_result(from: Vector2, to: Vector2) -> Dictionary:
+## ตรวจจับกำแพงและหาสิ่งกีดขวางก่อนวาร์ปพุ่ง (แบบยิงร่างเงาเช็ครวดเดียว)
+func get_safe_dash_position(dir: Vector2, distance: float) -> Dictionary:
+	var motion = dir.normalized() * distance
+	var collision = KinematicCollision2D.new()
 	
-	
-	var space = get_world_2d().direct_space_state #หัวหน้าสั่งงาน
+	# test_move จะยิง "ร่างเงา" (Shape ของตัวละคร) พุ่งพรวดเดียวไปตามระยะ motion
+	# ถ้าชนอะไรระหว่างทาง มันจะส่งค่า true และเก็บข้อมูลการชนไว้ในตัวแปร collision
+	if test_move(global_transform, motion, collision):
+		# collision.get_travel() จะคืนค่าเวกเตอร์ระยะทางที่ปลอดภัยที่สุดก่อนที่จะมิดกำแพง
+		var safe_travel = collision.get_travel()
+		
+		return {
+			"position": global_position + safe_travel,
+			"hit": true
+		}
+	else:
+		# ถ้าทางสะดวก ไม่ติดกำแพง ก็วาร์ปไปให้สุดระยะทาง
+		return {
+			"position": global_position + motion,
+			"hit": false
+		}
 
-	var shape = RectangleShape2D.new()
-	shape.size = collider.shape.size /2
-
-	var query = PhysicsShapeQueryParameters2D.new() #ตรวจจับด้วย Shape
-	query.shape = shape
-	query.transform = Transform2D(0.0, from)
-	query.motion = to - from
-	query.exclude = [self]
-	query.collision_mask = 1
-	query.collide_with_bodies = true
-
-	var result = space.cast_motion(query) #จับเส้นทางในอนาคตของ shape ที่พุ่งไป 
-
-	if result[0] < 1.0:
-		var safe_pos = from + (to - from) * result[0]
-		var ray_query = PhysicsRayQueryParameters2D.create(from, to)
-		ray_query.exclude = [self]
-		ray_query.collision_mask = 1
-		var ray_result = space.intersect_ray(ray_query)
-		var normal = ray_result.get("normal", Vector2.ZERO)
-		return {"position": safe_pos, "hit": true, "normal": normal}
-	
-	return {"position": to, "hit": false, "normal": Vector2.ZERO}
 
 #endregion
 
